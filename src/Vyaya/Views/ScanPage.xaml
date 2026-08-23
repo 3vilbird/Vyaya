@@ -40,7 +40,7 @@
                                    FontFamily="OpenSansSemibold"
                                    TextColor="{StaticResource White}"
                                    Shadow="{Shadow Radius=3, Brush=Black, Offset='0,1'}"/>
-                            <Label Text="Align PhonePe / UPI QR in frame"
+                            <Label Text="Fast Scan: PhonePe, GPay, Paytm, Slice"
                                    FontSize="11"
                                    TextColor="{StaticResource Gray300}"
                                    Shadow="{Shadow Radius=3, Brush=Black, Offset='0,1'}"/>
@@ -65,8 +65,8 @@
                     </Grid>
 
                     <!-- Center QR Viewfinder Frame -->
-                    <Border WidthRequest="240"
-                            HeightRequest="240"
+                    <Border WidthRequest="250"
+                            HeightRequest="250"
                             Stroke="{StaticResource IosBlue}"
                             StrokeThickness="3"
                             StrokeShape="RoundRectangle 26"
