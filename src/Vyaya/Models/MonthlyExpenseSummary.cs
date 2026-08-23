@@ -35,6 +35,29 @@ public class MonthlyExpenseSummary
     }
 }
 
+public class ChartSegment
+{
+    public string Name { get; set; } = string.Empty;
+    public decimal TotalAmount { get; set; }
+    public double Percentage { get; set; }
+    public int Count { get; set; }
+    public string Icon { get; set; } = "📁";
+    public string ColorHex { get; set; } = "#0A84FF";
+
+    public string FormattedAmount
+    {
+        get
+        {
+            var culture = new CultureInfo("en-IN");
+            return TotalAmount % 1 == 0
+                ? $"₹{TotalAmount.ToString("N0", culture)}"
+                : $"₹{TotalAmount.ToString("N2", culture)}";
+        }
+    }
+
+    public string FormattedPercentage => $"{Percentage:0.0}%";
+}
+
 public class CategoryExpenseSummary
 {
     public string CategoryName { get; set; } = string.Empty;
@@ -66,6 +89,7 @@ public class PaymentMethodExpenseSummary
     public double Percentage { get; set; }
     public int Count { get; set; }
     public string Icon { get; set; } = "💳";
+    public string ColorHex { get; set; } = "#5856D6";
 
     public string FormattedAmount
     {

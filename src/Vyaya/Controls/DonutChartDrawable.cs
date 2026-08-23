@@ -5,7 +5,7 @@ namespace Vyaya.Controls;
 
 public class DonutChartDrawable : IDrawable
 {
-    public List<CategoryExpenseSummary> Segments { get; set; } = new();
+    public List<ChartSegment> Segments { get; set; } = new();
     public decimal TotalAmount { get; set; }
     public string CenterText { get; set; } = string.Empty;
     public string CenterSubtext { get; set; } = "Total Spending";
@@ -35,7 +35,9 @@ public class DonutChartDrawable : IDrawable
         canvas.StrokeSize = strokeWidth;
         canvas.DrawCircle(centerX, centerY, radius);
 
-        if (Segments == null || Segments.Count == 0 || TotalAmount <= 0)
+        var activeSegments = Segments?.Where(s => s.Percentage > 0).ToList() ?? new();
+
+        if (activeSegments.Count == 0 || TotalAmount <= 0)
         {
             // Empty State Ring
             canvas.StrokeColor = Color.FromArgb("#338E8E93");
@@ -53,43 +55,68 @@ public class DonutChartDrawable : IDrawable
             return;
         }
 
-        // Draw Segments
-        float startAngle = -90f; // Start at 12 o'clock
-        foreach (var segment in Segments)
+        if (activeSegments.Count == 1)
         {
-            if (segment.Percentage <= 0)
-                continue;
-
-            float sweepAngle = (float)(segment.Percentage / 100.0 * 360.0);
-            if (sweepAngle < 1f) sweepAngle = 1f;
-
+            // Single segment (100% of spending in this category)
+            var single = activeSegments[0];
             Color segColor;
             try
             {
-                segColor = Color.FromArgb(segment.ColorHex);
+                segColor = Color.FromArgb(single.ColorHex);
             }
             catch
             {
-                segColor = Color.FromArgb("#007AFF");
+                segColor = Color.FromArgb("#0A84FF");
             }
 
             canvas.StrokeColor = segColor;
             canvas.StrokeSize = strokeWidth;
-            canvas.StrokeLineCap = LineCap.Round;
+            canvas.DrawCircle(centerX, centerY, radius);
+        }
+        else
+        {
+            // Multi-segment: Draw each category with its distinct vibrant color
+            float startAngle = -90f; // Start at 12 o'clock
+            foreach (var segment in activeSegments)
+            {
+                float sweepAngle = (float)(segment.Percentage / 100.0 * 360.0);
+                if (sweepAngle < 2f) sweepAngle = 2f;
 
-            // Draw arc for this category
-            canvas.DrawArc(
-                centerX - radius,
-                centerY - radius,
-                radius * 2,
-                radius * 2,
-                startAngle + 2f, // slight gap
-                startAngle + sweepAngle - 2f,
-                true,
-                false
-            );
+                Color segColor;
+                try
+                {
+                    segColor = Color.FromArgb(segment.ColorHex);
+                }
+                catch
+                {
+                    segColor = Color.FromArgb("#0A84FF");
+                }
 
-            startAngle += sweepAngle;
+                canvas.StrokeColor = segColor;
+                canvas.StrokeSize = strokeWidth;
+                canvas.StrokeLineCap = LineCap.Round;
+
+                // Draw arc for this category with a small gap for a refined, modern look
+                float gap = 2.5f;
+                float arcStart = startAngle + gap;
+                float arcEnd = startAngle + sweepAngle - gap;
+
+                if (arcEnd <= arcStart)
+                    arcEnd = arcStart + 1f;
+
+                canvas.DrawArc(
+                    centerX - radius,
+                    centerY - radius,
+                    radius * 2,
+                    radius * 2,
+                    arcStart,
+                    arcEnd,
+                    true,
+                    false
+                );
+
+                startAngle += sweepAngle;
+            }
         }
 
         // Center Content (Total Amount + Subtext)

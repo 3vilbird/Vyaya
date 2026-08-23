@@ -13,164 +13,355 @@
         <ResourceDictionary>
             <conv:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <conv:HexToColorConverter x:Key="HexToColorConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="18,12,18,30" Spacing="18">
+    <Grid>
+        <!-- Main Page Content -->
+        <ScrollView>
+            <VerticalStackLayout Padding="18,12,18,30" Spacing="18">
 
-            <!-- Month Switcher Strip -->
-            <Border Stroke="{StaticResource CardBorder}"
-                    StrokeShape="RoundRectangle 16"
-                    BackgroundColor="{StaticResource CardBackground}"
-                    Padding="8,4">
-                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
-                    <Button Text="‹"
-                            FontSize="22"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource TextPrimary}"
-                            WidthRequest="44"
-                            HeightRequest="44"
-                            Padding="0"
-                            Command="{Binding PreviousMonthCommand}"/>
+                <!-- Month Switcher Strip -->
+                <Border Stroke="{StaticResource CardBorder}"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Padding="8,4">
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                        <Button Text="‹"
+                                FontSize="22"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource TextPrimary}"
+                                WidthRequest="44"
+                                HeightRequest="44"
+                                Padding="0"
+                                Command="{Binding PreviousMonthCommand}"/>
 
-                    <Label Grid.Column="1"
-                           Text="{Binding MonthDisplayTitle}"
-                           FontSize="16"
-                           FontFamily="OpenSansSemibold"
-                           TextColor="{StaticResource TextPrimary}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                               Text="{Binding MonthDisplayTitle}"
+                               FontSize="16"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
 
-                    <Button Grid.Column="2"
-                            Text="›"
-                            FontSize="22"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource TextPrimary}"
-                            WidthRequest="44"
-                            HeightRequest="44"
-                            Padding="0"
-                            Command="{Binding NextMonthCommand}"/>
-                </Grid>
-            </Border>
-
-            <!-- Interactive Apple-Style Donut Chart Card -->
-            <Border Stroke="{StaticResource CardBorder}"
-                    StrokeShape="RoundRectangle 22"
-                    BackgroundColor="{StaticResource CardBackground}"
-                    Padding="18,16">
-                <VerticalStackLayout Spacing="12">
-                    <Label Text="CATEGORY BREAKDOWN"
-                           FontSize="11"
-                           CharacterSpacing="1"
-                           FontFamily="OpenSansSemibold"
-                           TextColor="{StaticResource TextSecondary}"
-                           HorizontalOptions="Center"/>
-
-                    <!-- Custom GraphicsView Donut Chart -->
-                    <GraphicsView Drawable="{Binding ChartDrawable}"
-                                  HeightRequest="200"
-                                  WidthRequest="200"
-                                  HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Spending Summary Metrics Grid -->
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                <Border Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="Total Spend" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
-                        <Label Text="{Binding TotalSpendingFormatted}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
-                    </VerticalStackLayout>
+                        <Button Grid.Column="2"
+                                Text="›"
+                                FontSize="22"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource TextPrimary}"
+                                WidthRequest="44"
+                                HeightRequest="44"
+                                Padding="0"
+                                Command="{Binding NextMonthCommand}"/>
+                    </Grid>
                 </Border>
 
-                <Border Grid.Column="1" Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="Transactions" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
-                        <Label Text="{Binding TotalTransactions}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
-                    </VerticalStackLayout>
-                </Border>
+                <!-- Interactive Apple-Style Donut Chart Card -->
+                <Border Stroke="{StaticResource CardBorder}"
+                        StrokeShape="RoundRectangle 22"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Padding="18,16">
+                    <VerticalStackLayout Spacing="14">
+                        
+                        <!-- Header with Title and Premium Modal Pill Trigger -->
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="SPENDING CHART"
+                                       FontSize="11"
+                                       CharacterSpacing="1"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{StaticResource TextSecondary}"/>
+                                <Label Text="{Binding SelectedChartBasis, StringFormat='By {0}'}"
+                                       FontSize="14"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{StaticResource TextPrimary}"/>
+                            </VerticalStackLayout>
 
-                <Border Grid.Column="2" Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="Average" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
-                        <Label Text="{Binding AverageExpenseFormatted}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
+                            <!-- Premium Dropdown Pill Button (Opens iOS-Style Modal) -->
+                            <Border Grid.Column="1"
+                                    Stroke="{StaticResource CardBorder}"
+                                    StrokeShape="RoundRectangle 14"
+                                    BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                    Padding="12,7"
+                                    VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenBasisModalCommand}"/>
+                                </Border.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Text="{Binding SelectedChartBasis}"
+                                           FontSize="13"
+                                           TextColor="{StaticResource IosBlue}"
+                                           FontFamily="OpenSansSemibold"
+                                           VerticalOptions="Center"/>
+                                    <Label Text="▾"
+                                           FontSize="11"
+                                           TextColor="{StaticResource IosBlue}"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
 
-            <!-- Category Spend List -->
-            <VerticalStackLayout Spacing="12">
-                <Label Text="Spending by Category" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                        <!-- Custom GraphicsView Donut Chart -->
+                        <GraphicsView Drawable="{Binding ChartDrawable}"
+                                      HeightRequest="210"
+                                      WidthRequest="210"
+                                      HorizontalOptions="Center"/>
 
-                <!-- Category Items -->
-                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding CategoryBreakdown}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models:CategoryExpenseSummary">
-                            <Border Stroke="{StaticResource CardBorder}"
-                                    StrokeShape="RoundRectangle 16"
-                                    BackgroundColor="{StaticResource CardBackground}"
-                                    Padding="14,12">
-                                <VerticalStackLayout Spacing="8">
-                                    <Grid ColumnDefinitions="Auto,*,Auto">
-                                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                                            <Label Text="{Binding Icon}" FontSize="18" VerticalOptions="Center"/>
-                                            <Label Text="{Binding CategoryName}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                        <!-- Active Chart Segments Legend List with Color Indicators -->
+                        <VerticalStackLayout Spacing="8" Margin="0,6,0,0" BindableLayout.ItemsSource="{Binding CurrentChartSegments}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ChartSegment">
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                                        <!-- Distinct Segment Color Indicator -->
+                                        <Border WidthRequest="10"
+                                                HeightRequest="10"
+                                                StrokeShape="RoundRectangle 5"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColorConverter}}"
+                                                VerticalOptions="Center"/>
+
+                                        <Label Grid.Column="1" Text="{Binding Icon}" FontSize="15" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding Name}" FontSize="13" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                                        <HorizontalStackLayout Grid.Column="3" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding FormattedAmount}" FontSize="13" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                                            <Label Text="{Binding FormattedPercentage, StringFormat='({0})'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
                                         </HorizontalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
-                                        <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                <!-- Spending Summary Metrics Grid -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Border Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Total Spend" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="{Binding TotalSpendingFormatted}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Transactions" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="{Binding TotalTransactions}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="2" Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource CardBackground}" Padding="12,10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Average" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="{Binding AverageExpenseFormatted}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Category Spend List -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Spending by Category" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+
+                    <!-- Category Items with Category-Specific Vibrant Colors -->
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding CategoryBreakdown}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:CategoryExpenseSummary">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="{StaticResource CardBackground}"
+                                        Padding="14,12">
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8">
+                                        <!-- Category Color Indicator Pill -->
+                                        <Border WidthRequest="10"
+                                                HeightRequest="10"
+                                                StrokeShape="RoundRectangle 5"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColorConverter}}"
+                                                VerticalOptions="Center"/>
+
+                                        <Label Grid.Column="1" Text="{Binding Icon}" FontSize="18" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding CategoryName}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+
+                                        <HorizontalStackLayout Grid.Column="3" Spacing="6" VerticalOptions="Center">
                                             <Label Text="{Binding FormattedAmount}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
                                             <Label Text="{Binding FormattedPercentage, StringFormat='({0})'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
                                         </HorizontalStackLayout>
                                     </Grid>
 
-                                    <!-- Progress Bar -->
+                                    <!-- Category Color-Matched Progress Bar -->
                                     <ProgressBar Progress="{Binding Percentage, Converter={x:Null}}"
-                                                 ProgressColor="{StaticResource IosBlue}"
+                                                 ProgressColor="{Binding ColorHex, Converter={StaticResource HexToColorConverter}}"
                                                  BackgroundColor="{StaticResource CardBackgroundElevated}"
                                                  HeightRequest="4"/>
                                 </VerticalStackLayout>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
-            </VerticalStackLayout>
 
-            <!-- Payment Methods Breakdown -->
-            <VerticalStackLayout Spacing="12">
-                <Label Text="Spending by Payment Method" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                <!-- Payment Methods Breakdown -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Spending by Payment Method" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
 
-                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding PaymentMethodBreakdown}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models:PaymentMethodExpenseSummary">
-                            <Border Stroke="{StaticResource CardBorder}"
-                                    StrokeShape="RoundRectangle 14"
-                                    BackgroundColor="{StaticResource CardBackground}"
-                                    Padding="14,10">
-                                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
-                                    <Label Text="{Binding Icon}" FontSize="16" Margin="0,0,8,0" VerticalOptions="Center"/>
-                                    <Label Grid.Column="1" Text="{Binding Name}" FontSize="14" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
-                                    <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
-                                        <Label Text="{Binding FormattedAmount}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
-                                        <Label Text="{Binding FormattedPercentage, StringFormat='({0})'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
-                                    </HorizontalStackLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
+                    <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding PaymentMethodBreakdown}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:PaymentMethodExpenseSummary">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 14"
+                                        BackgroundColor="{StaticResource CardBackground}"
+                                        Padding="14,10">
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                                        <Border WidthRequest="10"
+                                                HeightRequest="10"
+                                                StrokeShape="RoundRectangle 5"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColorConverter}}"
+                                                VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding Icon}" FontSize="16" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding Name}" FontSize="14" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                                        <HorizontalStackLayout Grid.Column="3" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding FormattedAmount}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                                            <Label Text="{Binding FormattedPercentage, StringFormat='({0})'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
-            </VerticalStackLayout>
 
-            <!-- Export Button -->
-            <Button Text="Export Month's Expenses 📄"
+                <!-- Export Button -->
+                <Button Text="Export Month's Expenses 📄"
+                        BackgroundColor="{StaticResource CardBackgroundElevated}"
+                        TextColor="{StaticResource IosBlue}"
+                        FontSize="14"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        Command="{Binding ExportMonthCommand}"
+                        Margin="0,8,0,0"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Premium iOS-Style Modal Bottom Sheet Overlay -->
+        <Grid IsVisible="{Binding IsBasisModalOpen}"
+              ZIndex="999">
+            <!-- Translucent Scrim / Backdrop -->
+            <BoxView BackgroundColor="#A0000000">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseBasisModalCommand}"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <!-- Bottom Sheet Container -->
+            <Border VerticalOptions="End"
+                    Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 26,26,0,0"
                     BackgroundColor="{StaticResource CardBackgroundElevated}"
-                    TextColor="{StaticResource IosBlue}"
-                    FontSize="14"
-                    HeightRequest="48"
-                    CornerRadius="14"
-                    Command="{Binding ExportMonthCommand}"
-                    Margin="0,8,0,0"/>
+                    Padding="20,16,20,34">
+                <VerticalStackLayout Spacing="16">
+                    <!-- Top Grab Indicator Handle -->
+                    <Border WidthRequest="38"
+                            HeightRequest="5"
+                            StrokeShape="RoundRectangle 3"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource CardBorder}"
+                            HorizontalOptions="Center"/>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                    <!-- Modal Header -->
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Group Spending By"
+                                   FontSize="18"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{StaticResource TextPrimary}"/>
+                            <Label Text="Choose how to organize your analytics chart"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondary}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Close Button -->
+                        <Border Grid.Column="1"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="Transparent"
+                                BackgroundColor="{StaticResource CardBackground}"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseBasisModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="✕"
+                                   FontSize="13"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Options List -->
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding BasisOptions}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChartBasisOptionItem">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="{StaticResource CardBackground}"
+                                        Padding="16,14">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MonthlySummaryViewModel}}, Path=SelectBasisCommand}"
+                                                              CommandParameter="{Binding Id}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" VerticalOptions="Center">
+                                        <!-- Option Avatar / Icon -->
+                                        <Border WidthRequest="42"
+                                                HeightRequest="42"
+                                                StrokeShape="RoundRectangle 21"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding Icon}"
+                                                   FontSize="20"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <!-- Option Text Info -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="15"
+                                                   FontFamily="OpenSansSemibold"
+                                                   TextColor="{StaticResource TextPrimary}"/>
+                                            <Label Text="{Binding Subtitle}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource TextSecondary}"
+                                                   LineBreakMode="TailTruncation"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Selection Checkmark Badge -->
+                                        <Border Grid.Column="2"
+                                                IsVisible="{Binding IsSelected}"
+                                                WidthRequest="26"
+                                                HeightRequest="26"
+                                                StrokeShape="RoundRectangle 13"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{StaticResource IosBlue}"
+                                                VerticalOptions="Center">
+                                            <Label Text="✓"
+                                                   FontSize="13"
+                                                   TextColor="{StaticResource White}"
+                                                   FontFamily="OpenSansSemibold"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
 </ContentPage>
