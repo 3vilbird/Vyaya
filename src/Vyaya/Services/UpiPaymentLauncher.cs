@@ -34,32 +34,25 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
             var context = activity ?? Android.App.Application.Context;
 
             var upiUri = Android.Net.Uri.Parse(uriString);
-            var intent = new Intent(Intent.ActionView);
-            intent.SetData(upiUri);
-            intent.AddFlags(ActivityFlags.NewTask);
+            var intent = new Intent(Intent.ActionView, upiUri);
 
-            // Copy UPI address to clipboard as a helpful fallback for the user
+            // Copy UPI address to clipboard as background safety
             if (!string.IsNullOrWhiteSpace(request.PaymentAddress))
             {
-                try
-                {
-                    await Clipboard.Default.SetTextAsync(request.PaymentAddress);
-                }
-                catch { }
+                try { await Clipboard.Default.SetTextAsync(request.PaymentAddress); } catch { }
             }
 
             // Strategy 1: Open system chooser
             try
             {
                 var chooser = Intent.CreateChooser(intent, "Pay with UPI");
-                chooser.AddFlags(ActivityFlags.NewTask);
-
                 if (activity != null)
                 {
                     activity.StartActivity(chooser);
                 }
                 else
                 {
+                    chooser.AddFlags(ActivityFlags.NewTask);
                     context.StartActivity(chooser);
                 }
                 return UpiPaymentResult.Unknown(uriString, "UPI payment application launched.");
@@ -78,13 +71,14 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
                 }
                 else
                 {
+                    intent.AddFlags(ActivityFlags.NewTask);
                     context.StartActivity(intent);
                 }
                 return UpiPaymentResult.Unknown(uriString, "UPI payment application launched.");
             }
             catch (ActivityNotFoundException)
             {
-                // Direct failed, try targeting specific known UPI apps directly
+                // Direct failed, try targeting specific known UPI apps
             }
 
             // Strategy 3: Target known UPI packages directly (PhonePe, GPay, Paytm, etc.)
@@ -104,10 +98,8 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
             {
                 try
                 {
-                    var appIntent = new Intent(Intent.ActionView);
-                    appIntent.SetData(upiUri);
+                    var appIntent = new Intent(Intent.ActionView, upiUri);
                     appIntent.SetPackage(pkg);
-                    appIntent.AddFlags(ActivityFlags.NewTask);
 
                     if (activity != null)
                     {
@@ -115,6 +107,7 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
                     }
                     else
                     {
+                        appIntent.AddFlags(ActivityFlags.NewTask);
                         context.StartActivity(appIntent);
                     }
                     return UpiPaymentResult.Unknown(uriString, $"Launched UPI application ({pkg}).");
@@ -168,21 +161,15 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
             var activity = Platform.CurrentActivity;
             var context = activity ?? Android.App.Application.Context;
 
-            // Copy UPI address to clipboard
+            // Copy UPI address to clipboard as background safety
             if (!string.IsNullOrWhiteSpace(request.PaymentAddress))
             {
-                try
-                {
-                    await Clipboard.Default.SetTextAsync(request.PaymentAddress);
-                }
-                catch { }
+                try { await Clipboard.Default.SetTextAsync(request.PaymentAddress); } catch { }
             }
 
             var upiUri = Android.Net.Uri.Parse(uriString);
-            var appIntent = new Intent(Intent.ActionView);
-            appIntent.SetData(upiUri);
+            var appIntent = new Intent(Intent.ActionView, upiUri);
             appIntent.SetPackage(packageName);
-            appIntent.AddFlags(ActivityFlags.NewTask);
 
             try
             {
@@ -192,6 +179,7 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
                 }
                 else
                 {
+                    appIntent.AddFlags(ActivityFlags.NewTask);
                     context.StartActivity(appIntent);
                 }
                 return UpiPaymentResult.Unknown(uriString, $"Launched {packageName}.");

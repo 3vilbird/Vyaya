@@ -21,55 +21,42 @@ public class UpiPaymentRequest
     public string RawPayload { get; set; } = string.Empty;
 
     /// <summary>
-    /// Builds a clean, compliant NPCI/UPI Intent URI.
-    /// Excludes restricted internal merchant signature tags (e.g. mode=02, orgid, sign)
-    /// that trigger NPCI/PhonePe "Payment denied for security reasons" on third-party app intents.
+    /// Builds a clean, universal NPCI-compliant UPI Intent URI.
+    /// Strictly passes the 5 official standard parameters:
+    /// • pa: Verified Payee UPI ID (VPA)
+    /// • pn: Verified Payee Name
+    /// • am: Exact Amount (0.00 format)
+    /// • cu: INR
+    /// • tn: Transaction Note
     /// </summary>
     public string BuildUpiUri(decimal? overrideAmount = null)
     {
         var finalAmount = overrideAmount ?? Amount;
         var queryParams = new List<string>();
 
-        // 1. Payee Address (VPA) - Required
+        // 1. pa: Verified Payee UPI ID (VPA) - Required
         if (!string.IsNullOrWhiteSpace(PaymentAddress))
         {
-            queryParams.Add($"pa={Uri.EscapeDataString(PaymentAddress.Trim())}");
+            queryParams.Add($"pa={PaymentAddress.Trim()}");
         }
 
-        // 2. Payee Name - Optional but recommended
-        if (!string.IsNullOrWhiteSpace(PayeeName))
-        {
-            queryParams.Add($"pn={Uri.EscapeDataString(PayeeName.Trim())}");
-        }
+        // 2. pn: Verified Payee Name - Formatted clean
+        var name = !string.IsNullOrWhiteSpace(PayeeName) ? PayeeName.Trim() : (PaymentAddress?.Split('@')[0] ?? "Merchant");
+        queryParams.Add($"pn={Uri.EscapeDataString(name)}");
 
-        // 3. Amount - Formatted as 0.00
+        // 3. am: Exact Amount (0.00 format)
         if (finalAmount.HasValue && finalAmount.Value > 0)
         {
             var amountStr = finalAmount.Value.ToString("0.00", CultureInfo.InvariantCulture);
             queryParams.Add($"am={amountStr}");
         }
 
-        // 4. Currency - Always INR for UPI
-        var cur = !string.IsNullOrWhiteSpace(Currency) ? Currency.Trim().ToUpperInvariant() : "INR";
-        queryParams.Add($"cu={cur}");
+        // 4. cu: Currency (Always INR for UPI)
+        queryParams.Add("cu=INR");
 
-        // 5. Transaction Note / Description
-        if (!string.IsNullOrWhiteSpace(TransactionNote))
-        {
-            queryParams.Add($"tn={Uri.EscapeDataString(TransactionNote.Trim())}");
-        }
-
-        // 6. Merchant Code (MCC) - 4 digit standard code
-        if (!string.IsNullOrWhiteSpace(MerchantCode) && MerchantCode.Trim().Length == 4 && char.IsDigit(MerchantCode.Trim()[0]))
-        {
-            queryParams.Add($"mc={Uri.EscapeDataString(MerchantCode.Trim())}");
-        }
-
-        // 7. Transaction Reference (if present and clean)
-        if (!string.IsNullOrWhiteSpace(TransactionReference))
-        {
-            queryParams.Add($"tr={Uri.EscapeDataString(TransactionReference.Trim())}");
-        }
+        // 5. tn: Transaction Note / Description
+        var note = !string.IsNullOrWhiteSpace(TransactionNote) ? TransactionNote.Trim() : "Vyaya Payment";
+        queryParams.Add($"tn={Uri.EscapeDataString(note)}");
 
         return $"upi://pay?{string.Join("&", queryParams)}";
     }
