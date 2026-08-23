@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Vyaya.Models;
 
 public class UpiPaymentRequest
@@ -21,6 +23,27 @@ public class UpiPaymentRequest
     public string BuildUpiUri(decimal? overrideAmount = null)
     {
         var finalAmount = overrideAmount ?? Amount;
+
+        // If we have an existing RawPayload starting with upi://pay, preserve all original merchant parameters (orgid, mode, etc.)
+        if (!string.IsNullOrWhiteSpace(RawPayload) && RawPayload.Trim().StartsWith("upi://pay", StringComparison.OrdinalIgnoreCase))
+        {
+            var raw = RawPayload.Trim();
+            if (finalAmount.HasValue && finalAmount.Value > 0)
+            {
+                var amountStr = finalAmount.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                if (raw.Contains("am=", StringComparison.OrdinalIgnoreCase))
+                {
+                    raw = Regex.Replace(raw, @"(?i)am=[^&]*", $"am={amountStr}");
+                }
+                else
+                {
+                    raw = raw.Contains('?') ? $"{raw}&am={amountStr}" : $"{raw}?am={amountStr}";
+                }
+            }
+            return raw;
+        }
+
+        // Otherwise build clean standard upi://pay URI
         var queryParams = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(PaymentAddress))

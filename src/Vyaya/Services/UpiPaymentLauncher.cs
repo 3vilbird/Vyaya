@@ -31,36 +31,99 @@ public class UpiPaymentLauncher : IUpiPaymentLauncher
         try
         {
             var activity = Platform.CurrentActivity;
-            if (activity == null)
-            {
-                return UpiPaymentResult.Failed("No active Android activity found.");
-            }
+            var context = activity ?? Android.App.Application.Context;
 
             var upiUri = Android.Net.Uri.Parse(uriString);
             var intent = new Intent(Intent.ActionView, upiUri);
+            intent.AddFlags(ActivityFlags.NewTask);
 
-            // Check if there are apps available to handle the UPI intent
-            var packageManager = activity.PackageManager;
-            if (packageManager == null)
+            // Strategy 1: Open system chooser directly
+            try
             {
-                return UpiPaymentResult.Failed("Unable to access Android PackageManager.");
+                var chooser = Intent.CreateChooser(intent, "Pay with UPI");
+                if (activity != null)
+                {
+                    activity.StartActivity(chooser);
+                }
+                else
+                {
+                    chooser.AddFlags(ActivityFlags.NewTask);
+                    context.StartActivity(chooser);
+                }
+                return UpiPaymentResult.Unknown(uriString, "UPI payment application launched.");
+            }
+            catch (ActivityNotFoundException)
+            {
+                // Chooser failed, try direct intent
             }
 
-            var resolveInfos = packageManager.QueryIntentActivities(intent, PackageInfoFlags.MatchDefaultOnly);
-            if (resolveInfos == null || resolveInfos.Count == 0)
+            // Strategy 2: Direct intent without chooser
+            try
             {
-                return UpiPaymentResult.Failed("No compatible UPI applications (PhonePe, Google Pay, Paytm, etc.) found on this device.");
+                if (activity != null)
+                {
+                    activity.StartActivity(intent);
+                }
+                else
+                {
+                    context.StartActivity(intent);
+                }
+                return UpiPaymentResult.Unknown(uriString, "UPI payment application launched.");
+            }
+            catch (ActivityNotFoundException)
+            {
+                // Direct failed, try targeting specific known UPI apps directly
             }
 
-            var chooser = Intent.CreateChooser(intent, "Pay using UPI");
-            activity.StartActivity(chooser);
+            // Strategy 3: Check and launch known installed UPI packages directly (PhonePe, GPay, Paytm, etc.)
+            var knownPackages = new[]
+            {
+                "com.phonepe.app",
+                "com.google.android.apps.nbu.paisa.user",
+                "net.one97.paytm",
+                "in.org.npci.upiapp",
+                "com.dreamplug.androidapp",
+                "in.amazon.mShop.android.shopping",
+                "org.slice.app",
+                "club.slice.android",
+                "com.upi.axispay",
+                "com.mobikwik_new"
+            };
 
-            // Launched successfully - the payment status will be Pending/Unknown until user returns or reconciles
-            return UpiPaymentResult.Unknown(uriString, "UPI payment application launched.");
-        }
-        catch (ActivityNotFoundException)
-        {
-            return UpiPaymentResult.Failed("No compatible UPI application was found on this device.");
+            foreach (var pkg in knownPackages)
+            {
+                try
+                {
+                    var appIntent = new Intent(Intent.ActionView, upiUri);
+                    appIntent.SetPackage(pkg);
+                    if (activity != null)
+                    {
+                        appIntent.AddFlags(ActivityFlags.NewTask);
+                        activity.StartActivity(appIntent);
+                    }
+                    else
+                    {
+                        appIntent.AddFlags(ActivityFlags.NewTask);
+                        context.StartActivity(appIntent);
+                    }
+                    return UpiPaymentResult.Unknown(uriString, $"Launched UPI application ({pkg}).");
+                }
+                catch
+                {
+                    // Continue to next package
+                }
+            }
+
+            // Strategy 4: Fallback to MAUI Launcher
+            try
+            {
+                await Launcher.Default.OpenAsync(new System.Uri(uriString));
+                return UpiPaymentResult.Unknown(uriString, "Launched via system launcher.");
+            }
+            catch
+            {
+                return UpiPaymentResult.Failed("No compatible UPI application (PhonePe, Google Pay, Paytm, etc.) was found on this device.");
+            }
         }
         catch (Exception ex)
         {
