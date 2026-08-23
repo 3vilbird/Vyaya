@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace Vyaya.Models;
 
@@ -20,52 +20,56 @@ public class UpiPaymentRequest
 
     public string RawPayload { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Builds a clean, compliant NPCI/UPI Intent URI.
+    /// Excludes restricted internal merchant signature tags (e.g. mode=02, orgid, sign)
+    /// that trigger NPCI/PhonePe "Payment denied for security reasons" on third-party app intents.
+    /// </summary>
     public string BuildUpiUri(decimal? overrideAmount = null)
     {
         var finalAmount = overrideAmount ?? Amount;
-
-        // If we have an existing RawPayload starting with upi://pay, preserve all original merchant parameters (orgid, mode, etc.)
-        if (!string.IsNullOrWhiteSpace(RawPayload) && RawPayload.Trim().StartsWith("upi://pay", StringComparison.OrdinalIgnoreCase))
-        {
-            var raw = RawPayload.Trim();
-            if (finalAmount.HasValue && finalAmount.Value > 0)
-            {
-                var amountStr = finalAmount.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-                if (raw.Contains("am=", StringComparison.OrdinalIgnoreCase))
-                {
-                    raw = Regex.Replace(raw, @"(?i)am=[^&]*", $"am={amountStr}");
-                }
-                else
-                {
-                    raw = raw.Contains('?') ? $"{raw}&am={amountStr}" : $"{raw}?am={amountStr}";
-                }
-            }
-            return raw;
-        }
-
-        // Otherwise build clean standard upi://pay URI
         var queryParams = new List<string>();
 
+        // 1. Payee Address (VPA) - Required
         if (!string.IsNullOrWhiteSpace(PaymentAddress))
-            queryParams.Add($"pa={Uri.EscapeDataString(PaymentAddress)}");
+        {
+            queryParams.Add($"pa={Uri.EscapeDataString(PaymentAddress.Trim())}");
+        }
 
+        // 2. Payee Name - Optional but recommended
         if (!string.IsNullOrWhiteSpace(PayeeName))
-            queryParams.Add($"pn={Uri.EscapeDataString(PayeeName)}");
+        {
+            queryParams.Add($"pn={Uri.EscapeDataString(PayeeName.Trim())}");
+        }
 
+        // 3. Amount - Formatted as 0.00
         if (finalAmount.HasValue && finalAmount.Value > 0)
-            queryParams.Add($"am={finalAmount.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}");
+        {
+            var amountStr = finalAmount.Value.ToString("0.00", CultureInfo.InvariantCulture);
+            queryParams.Add($"am={amountStr}");
+        }
 
-        var cur = !string.IsNullOrWhiteSpace(Currency) ? Currency : "INR";
-        queryParams.Add($"cu={Uri.EscapeDataString(cur)}");
+        // 4. Currency - Always INR for UPI
+        var cur = !string.IsNullOrWhiteSpace(Currency) ? Currency.Trim().ToUpperInvariant() : "INR";
+        queryParams.Add($"cu={cur}");
 
-        if (!string.IsNullOrWhiteSpace(TransactionReference))
-            queryParams.Add($"tr={Uri.EscapeDataString(TransactionReference)}");
-
+        // 5. Transaction Note / Description
         if (!string.IsNullOrWhiteSpace(TransactionNote))
-            queryParams.Add($"tn={Uri.EscapeDataString(TransactionNote)}");
+        {
+            queryParams.Add($"tn={Uri.EscapeDataString(TransactionNote.Trim())}");
+        }
 
-        if (!string.IsNullOrWhiteSpace(MerchantCode))
-            queryParams.Add($"mc={Uri.EscapeDataString(MerchantCode)}");
+        // 6. Merchant Code (MCC) - 4 digit standard code
+        if (!string.IsNullOrWhiteSpace(MerchantCode) && MerchantCode.Trim().Length == 4 && char.IsDigit(MerchantCode.Trim()[0]))
+        {
+            queryParams.Add($"mc={Uri.EscapeDataString(MerchantCode.Trim())}");
+        }
+
+        // 7. Transaction Reference (if present and clean)
+        if (!string.IsNullOrWhiteSpace(TransactionReference))
+        {
+            queryParams.Add($"tr={Uri.EscapeDataString(TransactionReference.Trim())}");
+        }
 
         return $"upi://pay?{string.Join("&", queryParams)}";
     }
