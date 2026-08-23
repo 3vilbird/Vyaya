@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vyaya.ViewModels"
+             xmlns:conv="clr-namespace:Vyaya.Converters"
+             x:Class="Vyaya.Views.ExpenseDetailPage"
+             x:DataType="vm:ExpenseDetailViewModel"
+             Title="Expense Receipt"
+             BackgroundColor="{StaticResource PageBackground}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,30" Spacing="16">
+
+            <!-- Receipt Hero Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 22"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="22,20">
+                <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <Label Text="{Binding Expense.DisplayTitle}"
+                           FontSize="22"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Label Text="{Binding Expense.FormattedAmount}"
+                           FontSize="40"
+                           FontFamily="OpenSansSemibold"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"/>
+
+                    <!-- Status Pill -->
+                    <Border Stroke="Transparent"
+                            BackgroundColor="{Binding Expense.StatusBackground}"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="12,4"
+                            HorizontalOptions="Center">
+                        <Label Text="{Binding Expense.StatusText}"
+                               FontSize="13"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{Binding Expense.StatusColor}"/>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Reconcile Actions (if Pending / Unknown) -->
+            <Border IsVisible="{Binding CanReconcile}"
+                    Stroke="#80FF9F0A"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="#15FF9F0A"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="UPI PAYMENT STATUS ATTENTION"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="#FF9F0A"/>
+
+                    <Label Text="Did your PhonePe / UPI payment go through successfully?"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="Mark as Paid ✓"
+                                BackgroundColor="{StaticResource IosGreen}"
+                                TextColor="#FFFFFF"
+                                FontSize="13"
+                                CornerRadius="12"
+                                HeightRequest="44"
+                                Command="{Binding MarkAsPaidCommand}"/>
+
+                        <Button Grid.Column="1"
+                                Text="Mark Cancelled ✕"
+                                BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                TextColor="{StaticResource TextSecondary}"
+                                FontSize="13"
+                                CornerRadius="12"
+                                HeightRequest="44"
+                                Command="{Binding MarkAsCancelledCommand}"/>
+                    </Grid>
+
+                    <Button Text="Re-launch UPI App ⚡"
+                            IsVisible="{Binding IsUpiScan}"
+                            BackgroundColor="{StaticResource IosBlue}"
+                            TextColor="{StaticResource White}"
+                            FontSize="13"
+                            CornerRadius="12"
+                            HeightRequest="44"
+                            Command="{Binding RelaunchUpiPaymentCommand}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Detailed Breakdown Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="TRANSACTION DETAILS"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <!-- Category Row -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Category" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding Expense.Category}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+
+                    <!-- Payment Method Row -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Payment Method" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding Expense.PaymentMethodBadge}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+
+                    <!-- Entry Type Row -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Entry Mode" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding Expense.EntryType}" FontSize="14" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+
+                    <!-- Date & Time Row -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Date &amp; Time" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding Expense.EffectiveDateLocal, StringFormat='{0:dd MMM yyyy, hh:mm tt}'}" FontSize="14" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <!-- UPI ID Row (if present) -->
+                    <VerticalStackLayout Spacing="14" IsVisible="{Binding Expense.UpiId, Converter={StaticResource StringNotNullOrEmptyConverter}}">
+                        <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="UPI ID" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Grid.Column="1" Text="{Binding Expense.UpiId}" FontSize="14" TextColor="{StaticResource IosBlue}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- Payment Reference Row (if present) -->
+                    <VerticalStackLayout Spacing="14" IsVisible="{Binding Expense.PaymentReference, Converter={StaticResource StringNotNullOrEmptyConverter}}">
+                        <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Reference ID" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Grid.Column="1" Text="{Binding Expense.PaymentReference}" FontSize="13" TextColor="{StaticResource TextPrimary}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- User Note Row (if present) -->
+                    <VerticalStackLayout Spacing="14" IsVisible="{Binding Expense.Note, Converter={StaticResource StringNotNullOrEmptyConverter}}">
+                        <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Note" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="{Binding Expense.Note}" FontSize="14" TextColor="{StaticResource TextPrimary}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- UPI QR Note Row (if present) -->
+                    <VerticalStackLayout Spacing="14" IsVisible="{Binding Expense.UpiTransactionNote, Converter={StaticResource StringNotNullOrEmptyConverter}}">
+                        <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="QR Transaction Note" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="{Binding Expense.UpiTransactionNote}" FontSize="13" TextColor="{StaticResource TextSecondary}" FontAttributes="Italic"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Delete Button -->
+            <Button Text="Delete Record 🗑️"
+                    BackgroundColor="#20FF453A"
+                    TextColor="#FF453A"
+                    FontSize="14"
+                    HeightRequest="48"
+                    CornerRadius="14"
+                    Command="{Binding DeleteCommand}"
+                    Margin="0,8,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

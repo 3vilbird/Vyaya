@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vyaya.ViewModels"
+             xmlns:models="clr-namespace:Vyaya.Models"
+             xmlns:conv="clr-namespace:Vyaya.Converters"
+             x:Class="Vyaya.Views.ExpensesPage"
+             x:DataType="vm:ExpensesViewModel"
+             Title="Expense History"
+             BackgroundColor="{StaticResource PageBackground}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16,10,16,0">
+
+        <!-- Search Bar -->
+        <Border Stroke="{StaticResource CardBorder}"
+                StrokeShape="RoundRectangle 14"
+                BackgroundColor="{StaticResource CardBackground}"
+                Padding="12,0"
+                Margin="0,0,0,10">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalOptions="Center">
+                <Label Text="🔍" FontSize="14" VerticalOptions="Center"/>
+                <Entry Grid.Column="1"
+                       Placeholder="Search merchant, category, or note..."
+                       Text="{Binding SearchQuery}"
+                       FontSize="13"
+                       VerticalOptions="Center">
+                    <Entry.Behaviors>
+                        <!-- Search on typing -->
+                    </Entry.Behaviors>
+                </Entry>
+            </Grid>
+        </Border>
+
+        <!-- Filter Chips Strip -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="0,0,0,10">
+            <HorizontalStackLayout Spacing="8">
+                <!-- Method Filters -->
+                <Border Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 10" BackgroundColor="{StaticResource CardBackgroundElevated}" Padding="10,6">
+                    <Picker Title="Method"
+                            ItemsSource="{Binding MethodFilters}"
+                            SelectedItem="{Binding SelectedMethodFilter}"
+                            FontSize="12"
+                            TextColor="{StaticResource TextPrimary}"/>
+                </Border>
+
+                <!-- Status Filters -->
+                <Border Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 10" BackgroundColor="{StaticResource CardBackgroundElevated}" Padding="10,6">
+                    <Picker Title="Status"
+                            ItemsSource="{Binding StatusFilters}"
+                            SelectedItem="{Binding SelectedStatusFilter}"
+                            FontSize="12"
+                            TextColor="{StaticResource TextPrimary}"/>
+                </Border>
+
+                <!-- Category Filters -->
+                <Border Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 10" BackgroundColor="{StaticResource CardBackgroundElevated}" Padding="10,6">
+                    <Picker Title="Category"
+                            ItemsSource="{Binding CategoryFilters}"
+                            SelectedItem="{Binding SelectedCategoryFilter}"
+                            FontSize="12"
+                            TextColor="{StaticResource TextPrimary}"/>
+                </Border>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Expenses List with Date Grouping -->
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadExpensesCommand}">
+            <Grid>
+                <!-- Empty State -->
+                <VerticalStackLayout IsVisible="{Binding HasNoExpenses}"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12"
+                                     Padding="20">
+                    <Label Text="📑" FontSize="44" HorizontalOptions="Center"/>
+                    <Label Text="No expenses found"
+                           FontSize="18"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Try adjusting your search query or filters."
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+
+                <!-- Grouped CollectionView -->
+                <CollectionView ItemsSource="{Binding GroupedExpenses}"
+                                IsGrouped="True"
+                                SelectionMode="None">
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate x:DataType="vm:ExpenseDateGroup">
+                            <Grid ColumnDefinitions="*,Auto" Padding="4,12,4,6">
+                                <Label Text="{Binding DateHeader}"
+                                       FontSize="13"
+                                       FontFamily="OpenSansSemibold"
+                                       CharacterSpacing="0.5"
+                                       TextColor="{StaticResource TextSecondary}"/>
+                                <Label Grid.Column="1"
+                                       Text="{Binding DailyTotalFormatted}"
+                                       FontSize="13"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{StaticResource TextSecondary}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Expense">
+                            <Border Stroke="{StaticResource CardBorder}"
+                                    StrokeShape="RoundRectangle 16"
+                                    BackgroundColor="{StaticResource CardBackground}"
+                                    Padding="14,12"
+                                    Margin="0,0,0,8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpensesViewModel}}, Path=SelectExpenseCommand}"
+                                                          CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                    <!-- Icon Capsule -->
+                                    <Border WidthRequest="44" HeightRequest="44"
+                                            StrokeShape="RoundRectangle 12"
+                                            Stroke="Transparent"
+                                            BackgroundColor="{StaticResource CardBackgroundElevated}">
+                                        <Label Text="💳" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+
+                                    <!-- Merchant / Title & Details -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding DisplayTitle}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding DisplaySubtitle}" FontSize="12" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Amount & Status Badge -->
+                                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="3">
+                                        <Label Text="{Binding FormattedAmount}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="End"/>
+                                        <Border Stroke="Transparent"
+                                                BackgroundColor="{Binding StatusBackground}"
+                                                StrokeShape="RoundRectangle 6"
+                                                Padding="6,2"
+                                                HorizontalOptions="End">
+                                            <Label Text="{Binding StatusText}" FontSize="10" FontFamily="OpenSansSemibold" TextColor="{Binding StatusColor}"/>
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </RefreshView>
+
+    </Grid>
+</ContentPage>

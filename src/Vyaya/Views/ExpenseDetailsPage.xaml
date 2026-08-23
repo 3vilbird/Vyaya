@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vyaya.ViewModels"
+             xmlns:models="clr-namespace:Vyaya.Models"
+             xmlns:conv="clr-namespace:Vyaya.Converters"
+             x:Class="Vyaya.Views.ExpenseDetailsPage"
+             x:DataType="vm:ExpenseDetailsViewModel"
+             Title="Confirm Payment"
+             BackgroundColor="{StaticResource PageBackground}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,30" Spacing="16">
+
+            <!-- Merchant Card Header -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 20"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <!-- Merchant Avatar / Badge -->
+                    <Border WidthRequest="54" HeightRequest="54"
+                            StrokeShape="RoundRectangle 27"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource CardBackgroundElevated}"
+                            HorizontalOptions="Center">
+                        <Label Text="🏪" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+
+                    <Label Text="{Binding PayeeName}"
+                           FontSize="20"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+
+                    <!-- UPI ID pill -->
+                    <Border Stroke="Transparent"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource CardBackgroundElevated}"
+                            Padding="10,4"
+                            HorizontalOptions="Center">
+                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                            <Label Text="⚡" FontSize="11" TextColor="{StaticResource IosBlue}" VerticalOptions="Center"/>
+                            <Label Text="{Binding PaymentAddress}" FontSize="12" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Amount Input Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="AMOUNT TO PAY"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
+                        <Label Text="₹" FontSize="32" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" Margin="0,0,8,0"/>
+                        <Entry Grid.Column="1"
+                               Text="{Binding AmountText}"
+                               Placeholder="0"
+                               Keyboard="Numeric"
+                               FontSize="32"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{StaticResource TextPrimary}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Category Selector -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="CATEGORY"
+                               FontSize="11"
+                               CharacterSpacing="1"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1"
+                               Text="Change"
+                               FontSize="12"
+                               TextColor="{StaticResource IosBlue}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleCategoryPickerCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <!-- Selected Category Pill -->
+                    <Border Stroke="{StaticResource CardBorder}"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource CardBackgroundElevated}"
+                            Padding="12,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleCategoryPickerCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                            <Label Text="{Binding SelectedCategory.Icon}" FontSize="18" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="{Binding SelectedCategory.Name}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                            <Label Grid.Column="2" Text="▼" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Quick Category Chips -->
+                    <FlexLayout BindableLayout.ItemsSource="{Binding QuickCategories}"
+                                Wrap="Wrap"
+                                Direction="Row"
+                                AlignItems="Center"
+                                JustifyContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Category">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                        Padding="10,6"
+                                        Margin="0,0,6,6">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpenseDetailsViewModel}}, Path=SelectCategoryCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                        <Label Text="{Binding Icon}" FontSize="13"/>
+                                        <Label Text="{Binding Name}" FontSize="12" TextColor="{StaticResource TextPrimary}"/>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- Expandable Searchable Category Picker -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding IsCategoryPickerOpen}">
+                        <Border Stroke="{StaticResource CardBorder}"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource InputBackground}"
+                                Padding="8,0">
+                            <Entry Placeholder="Search category (e.g. food, travel...)"
+                                   Text="{Binding CategorySearchText}"
+                                   FontSize="13">
+                                <Entry.Behaviors>
+                                    <!-- Search filter triggered on text change -->
+                                </Entry.Behaviors>
+                            </Entry>
+                        </Border>
+
+                        <CollectionView ItemsSource="{Binding FilteredCategories}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Category">
+                                    <Grid Padding="8,6" ColumnDefinitions="Auto,*">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpenseDetailsViewModel}}, Path=SelectCategoryCommand}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Grid.GestureRecognizers>
+                                        <Label Text="{Binding Icon}" FontSize="16" Margin="0,0,10,0"/>
+                                        <Label Grid.Column="1" Text="{Binding Name}" FontSize="14" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- User Expense Note Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="EXPENSE NOTE (OPTIONAL)"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Entry Text="{Binding UserNote}"
+                           Placeholder="Add a personal note (e.g. dinner with team)"
+                           FontSize="14"
+                           TextColor="{StaticResource TextPrimary}"/>
+
+                    <!-- Display UPI QR Transaction Note if any -->
+                    <VerticalStackLayout Spacing="2" IsVisible="{Binding UpiTransactionNote, Converter={StaticResource StringNotNullOrEmptyConverter}}">
+                        <Label Text="Merchant QR Note:" FontSize="11" TextColor="{StaticResource TextTertiary}"/>
+                        <Label Text="{Binding UpiTransactionNote}" FontSize="12" TextColor="{StaticResource TextSecondary}" FontAttributes="Italic"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Error Banner -->
+            <Border IsVisible="{Binding HasError}"
+                    Stroke="#FF453A"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="#20FF453A"
+                    Padding="12,10">
+                <Label Text="{Binding ErrorMessage}" FontSize="12" TextColor="#FF453A"/>
+            </Border>
+
+            <!-- Action Button: Save & Pay with UPI -->
+            <VerticalStackLayout Spacing="10" Margin="0,8,0,0">
+                <Button Text="Pay with UPI ⚡"
+                        HeightRequest="52"
+                        FontSize="16"
+                        FontFamily="OpenSansSemibold"
+                        BackgroundColor="{StaticResource IosBlue}"
+                        TextColor="{StaticResource White}"
+                        CornerRadius="16"
+                        Command="{Binding PayWithUpiCommand}"/>
+
+                <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="🔒" FontSize="11"/>
+                    <Label Text="Saved locally as Pending before launching PhonePe / UPI"
+                           FontSize="11"
+                           TextColor="{StaticResource TextTertiary}"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

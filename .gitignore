@@ -1,0 +1,139 @@
+## ==========================================================
+## .NET / .NET MAUI Build Artifacts & Intermediate Files
+## ==========================================================
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+out/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM/
+ARM64/
+
+# Generated files
+Generated\ Files/
+Generated_Files/
+
+## ==========================================================
+## .NET MAUI & Mobile Platform Specific
+## ==========================================================
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+*.keystore
+*.jks
+*.class
+
+# iOS / Apple
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# Windows / WinUI
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+
+## ==========================================================
+## SQLite Local Database Files
+## ==========================================================
+*.db
+*.db3
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.db-journal
+
+## ==========================================================
+## Visual Studio / Visual Studio Code / IDEs
+## ==========================================================
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ide
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.ionide
+
+# JetBrains / Rider
+.idea/
+*.sln.iml
+
+# Android Studio / Gradle
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+
+## ==========================================================
+## NuGet & Dependencies
+## ==========================================================
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+packages/
+!**/packages/build/
+project.lock.json
+project.assets.json
+
+## ==========================================================
+## Test Results & Code Coverage
+## ==========================================================
+[Tt]est[Rr]esult*/
+[Tt]est[Rr]esults/
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
+## ==========================================================
+## OS Generated Files
+## ==========================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+.Trash-*
+
+## ==========================================================
+## Temporary & Scratch Files
+## ==========================================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.log

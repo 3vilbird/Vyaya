@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Modern Apple iOS Style Color Palette -->
+    <Color x:Key="Primary">#0A84FF</Color>
+    <Color x:Key="PrimaryDark">#0071E3</Color>
+    <Color x:Key="PrimaryLight">#3399FF</Color>
+    <Color x:Key="Secondary">#5E5CE6</Color>
+    <Color x:Key="Tertiary">#30D158</Color>
+
+    <!-- Surfaces -->
+    <Color x:Key="PageBackground">#0B0C10</Color>
+    <Color x:Key="CardBackground">#14161F</Color>
+    <Color x:Key="CardBackgroundElevated">#1C1F2D</Color>
+    <Color x:Key="CardBorder">#25293A</Color>
+    <Color x:Key="InputBackground">#1C1F2D</Color>
+
+    <!-- Typography -->
+    <Color x:Key="TextPrimary">#FFFFFF</Color>
+    <Color x:Key="TextSecondary">#8E8E93</Color>
+    <Color x:Key="TextTertiary">#636366</Color>
+
+    <!-- Accents -->
+    <Color x:Key="IosBlue">#0A84FF</Color>
+    <Color x:Key="IosGreen">#30D158</Color>
+    <Color x:Key="IosOrange">#FF9F0A</Color>
+    <Color x:Key="IosRed">#FF453A</Color>
+    <Color x:Key="IosPurple">#BF5AF2</Color>
+    <Color x:Key="IosIndigo">#5E5CE6</Color>
+    <Color x:Key="IosTeal">#64D2FF</Color>
+    <Color x:Key="IosYellow">#FFD60A</Color>
+    <Color x:Key="IosPink">#FF375F</Color>
+
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+
+    <Color x:Key="Gray100">#F2F2F7</Color>
+    <Color x:Key="Gray200">#E5E5EA</Color>
+    <Color x:Key="Gray300">#D1D1D6</Color>
+    <Color x:Key="Gray400">#C7C7CC</Color>
+    <Color x:Key="Gray500">#8E8E93</Color>
+    <Color x:Key="Gray600">#636366</Color>
+    <Color x:Key="Gray700">#3A3A3C</Color>
+    <Color x:Key="Gray800">#2C2C2E</Color>
+    <Color x:Key="Gray900">#1C1C1E</Color>
+    <Color x:Key="Gray950">#0B0C10</Color>
+
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="PageBackgroundBrush" Color="{StaticResource PageBackground}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBackground}"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorder}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
+</ResourceDictionary>

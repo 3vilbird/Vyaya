@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vyaya.ViewModels"
+             x:Class="Vyaya.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Settings &amp; Export"
+             BackgroundColor="{StaticResource PageBackground}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,12,18,30" Spacing="16">
+
+            <!-- Privacy Guarantee Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 20"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="8">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="🛡️" FontSize="20" VerticalOptions="Center"/>
+                        <Label Text="Privacy Guarantee" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+
+                    <Label Text="Vyaya is 100% local-first. Your financial records, QR payment data, notes, and categories are stored solely inside SQLite on this device. No data is ever uploaded to any cloud server."
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}"
+                           LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Data & Storage Metrics -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="LOCAL STORAGE STATISTICS"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <!-- Total Records -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Total Recorded Expenses" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding TotalExpensesCount}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+
+                    <!-- Lifetime Spend -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Lifetime Spending" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Grid.Column="1" Text="{Binding TotalLifetimeSpend}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource CardBorder}"/>
+
+                    <!-- SQLite Database Path -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Database File Location" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Text="{Binding DatabasePath}" FontSize="11" TextColor="{StaticResource TextTertiary}" LineBreakMode="CharacterWrap"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Export Actions Card -->
+            <Border Stroke="{StaticResource CardBorder}"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource CardBackground}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="DATA EXPORT"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Label Text="Export your complete expense ledger to CSV/Excel format to share or back up."
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Button Text="Export All Expenses 📤"
+                            BackgroundColor="{StaticResource IosBlue}"
+                            TextColor="{StaticResource White}"
+                            FontSize="14"
+                            HeightRequest="48"
+                            CornerRadius="14"
+                            Command="{Binding ExportAllExpensesCommand}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Danger Zone: Reset Database -->
+            <Border Stroke="#50FF453A"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="#10FF453A"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="DANGER ZONE"
+                           FontSize="11"
+                           CharacterSpacing="1"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="#FF453A"/>
+
+                    <Label Text="Permanently delete all stored expenses from this device."
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}"/>
+
+                    <Button Text="Reset All Data ⚠️"
+                            BackgroundColor="#30FF453A"
+                            TextColor="#FF453A"
+                            FontSize="13"
+                            HeightRequest="44"
+                            CornerRadius="12"
+                            Command="{Binding ClearAllDataCommand}"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

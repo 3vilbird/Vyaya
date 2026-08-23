@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vyaya.ViewModels"
+             xmlns:models="clr-namespace:Vyaya.Models"
+             xmlns:conv="clr-namespace:Vyaya.Converters"
+             x:Class="Vyaya.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Title="Vyaya"
+             BackgroundColor="{StaticResource PageBackground}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadDataCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16,12,16,24" Spacing="18">
+
+                <!-- Header / App Title -->
+                <Grid ColumnDefinitions="*,Auto" Margin="4,4,4,0">
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Vyaya व्यय" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold"/>
+                        <Label Text="Local Expense Ledger" FontSize="13" TextColor="{StaticResource TextSecondary}"/>
+                    </VerticalStackLayout>
+
+                    <Border Grid.Column="1" Stroke="{StaticResource CardBorder}" StrokeShape="RoundRectangle 20" BackgroundColor="{StaticResource CardBackgroundElevated}" Padding="10,6" VerticalOptions="Center">
+                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                            <BoxView Color="{StaticResource IosGreen}" WidthRequest="8" HeightRequest="8" CornerRadius="4" VerticalOptions="Center"/>
+                            <Label Text="100% Offline" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Pending / Attention Alert Banner (if any) -->
+                <Border IsVisible="{Binding HasPendingAttention}"
+                        Stroke="#80FF9F0A"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="#20FF9F0A"
+                        Padding="14,12">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
+                        <Label Text="⚠️" FontSize="22" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="Payment Status Attention" FontSize="14" FontFamily="OpenSansSemibold" TextColor="#FF9F0A"/>
+                            <Label Text="{Binding PendingAttentionCount, StringFormat='{0} UPI payment(s) awaiting confirmation'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2"
+                                Text="Review"
+                                FontSize="12"
+                                HeightRequest="34"
+                                Padding="12,0"
+                                BackgroundColor="#FF9F0A"
+                                TextColor="#000000"
+                                CornerRadius="10"
+                                Command="{Binding ViewAllExpensesCommand}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Hero Spending Card -->
+                <Border Stroke="{StaticResource CardBorder}"
+                        StrokeShape="RoundRectangle 22"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Padding="20,18">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding CurrentMonthName, StringFormat='SPENDING IN {0}'}"
+                                   FontSize="12"
+                                   CharacterSpacing="1"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{StaticResource TextSecondary}"/>
+                            <Label Grid.Column="1"
+                                   Text="Monthly Total"
+                                   FontSize="12"
+                                   TextColor="{StaticResource IosBlue}"/>
+                        </Grid>
+
+                        <Label Text="{Binding MonthlyTotal}"
+                               FontSize="38"
+                               FontFamily="OpenSansSemibold"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"/>
+
+                        <!-- Quick Stats Strip -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
+                            <Border Stroke="Transparent" BackgroundColor="{StaticResource CardBackgroundElevated}" StrokeShape="RoundRectangle 12" Padding="12,10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Transactions" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                                    <Label Text="{Binding TransactionCount}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Border Grid.Column="1" Stroke="Transparent" BackgroundColor="{StaticResource CardBackgroundElevated}" StrokeShape="RoundRectangle 12" Padding="12,10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Avg Expense" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                                    <Label Text="{Binding AverageExpense}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Primary Action Cards -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <!-- Scan & Pay Card -->
+                    <Border Stroke="{StaticResource IosBlue}"
+                            StrokeShape="RoundRectangle 18"
+                            BackgroundColor="#150A84FF"
+                            Padding="16"
+                            HeightRequest="120">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ScanAndPayCommand}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="8">
+                            <Label Text="📷" FontSize="26"/>
+                            <Label Text="Scan &amp; Pay" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource IosBlue}"/>
+                            <Label Text="UPI QR Code" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Add Expense Card -->
+                    <Border Grid.Column="1"
+                            Stroke="{StaticResource CardBorder}"
+                            StrokeShape="RoundRectangle 18"
+                            BackgroundColor="{StaticResource CardBackground}"
+                            Padding="16"
+                            HeightRequest="120">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AddExpenseCommand}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="8">
+                            <Label Text="✍️" FontSize="26"/>
+                            <Label Text="Add Expense" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                            <Label Text="Cash, Card, Other" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Top Categories Section (if any) -->
+                <VerticalStackLayout Spacing="10" IsVisible="{Binding TopCategories.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                    <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+                        <Label Text="Top Categories" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                        <Label Grid.Column="1" Text="See All" FontSize="13" TextColor="{StaticResource IosBlue}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ViewAnalyticsCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding TopCategories}" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Horizontal" Span="1" HorizontalItemSpacing="10"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:CategoryExpenseSummary">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 14"
+                                        BackgroundColor="{StaticResource CardBackground}"
+                                        Padding="14,10"
+                                        WidthRequest="130">
+                                    <VerticalStackLayout Spacing="4">
+                                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding Icon}" FontSize="16"/>
+                                            <Label Text="{Binding CategoryName}" FontSize="13" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding FormattedAmount}" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                                        <Label Text="{Binding FormattedPercentage}" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Recent Expenses Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+                        <Label Text="Recent Expenses" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
+                        <Label Grid.Column="1" Text="View History" FontSize="13" TextColor="{StaticResource IosBlue}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ViewAllExpensesCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <!-- Empty State -->
+                    <Border IsVisible="{Binding RecentExpenses.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=invert}"
+                            Stroke="{StaticResource CardBorder}"
+                            StrokeShape="RoundRectangle 18"
+                            BackgroundColor="{StaticResource CardBackground}"
+                            Padding="24"
+                            HorizontalOptions="Fill">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="🧾" FontSize="36" HorizontalOptions="Center"/>
+                            <Label Text="No expenses recorded yet" FontSize="15" FontFamily="OpenSansSemibold" HorizontalOptions="Center" TextColor="{StaticResource TextPrimary}"/>
+                            <Label Text="Scan a UPI QR code or add an expense manually." FontSize="12" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Expenses List -->
+                    <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding RecentExpenses}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Expense">
+                                <Border Stroke="{StaticResource CardBorder}"
+                                        StrokeShape="RoundRectangle 16"
+                                        BackgroundColor="{StaticResource CardBackground}"
+                                        Padding="14,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ExpenseSelectedCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                        <!-- Category / Icon Capsule -->
+                                        <Border WidthRequest="44" HeightRequest="44"
+                                                StrokeShape="RoundRectangle 12"
+                                                Stroke="Transparent"
+                                                BackgroundColor="{StaticResource CardBackgroundElevated}">
+                                            <Label Text="💳" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <!-- Merchant / Title & Details -->
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding DisplayTitle}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding DisplaySubtitle}" FontSize="12" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Amount & Status Badge -->
+                                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="3">
+                                            <Label Text="{Binding FormattedAmount}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="End"/>
+                                            <Border Stroke="Transparent"
+                                                    BackgroundColor="{Binding StatusBackground}"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    Padding="6,2"
+                                                    HorizontalOptions="End">
+                                                <Label Text="{Binding StatusText}" FontSize="10" FontFamily="OpenSansSemibold" TextColor="{Binding StatusColor}"/>
+                                            </Border>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>
