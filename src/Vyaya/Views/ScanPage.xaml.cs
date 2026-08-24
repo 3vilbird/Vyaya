@@ -13,12 +13,12 @@ public partial class ScanPage : ContentPage
         InitializeComponent();
         BindingContext = _viewModel = viewModel;
 
-        // Configure Barcode Reader with TryHarder and TryInverted for PhonePe/UPI QR codes
+        // High-Performance QR-Only Configuration (Eliminates 1D barcode overhead for instant PhonePe/UPI detection)
         BarcodeReaderView.Options = new BarcodeReaderOptions
         {
-            Formats = BarcodeFormats.All,
+            Formats = BarcodeFormat.QrCode,
             AutoRotate = true,
-            TryHarder = true,
+            TryHarder = false,
             TryInverted = true,
             Multiple = false
         };
@@ -31,8 +31,8 @@ public partial class ScanPage : ContentPage
 
         await CheckAndRequestCameraPermissionAsync();
 
-        // Brief delay before activating detection to let Camera2 initialize preview
-        await Task.Delay(200);
+        // Brief delay before activating detection to ensure camera preview is active
+        await Task.Delay(150);
         BarcodeReaderView.IsDetecting = true;
     }
 
@@ -87,17 +87,17 @@ public partial class ScanPage : ContentPage
         {
             try
             {
-                // Pause detection so we don't scan repeatedly
+                // Pause detection immediately to avoid double scans
                 BarcodeReaderView.IsDetecting = false;
 
-                // Provide haptic feedback
+                // Provide instant haptic feedback
                 try
                 {
                     HapticFeedback.Default.Perform(HapticFeedbackType.Click);
                 }
                 catch
                 {
-                    // Ignore haptic errors on platforms without vibration
+                    // Ignore haptic errors on unsupported hardware
                 }
 
                 // Process scanned QR payload (navigates to confirmation page)
@@ -109,7 +109,6 @@ public partial class ScanPage : ContentPage
             }
             finally
             {
-                // Reset processing flag
                 _isProcessingBarcode = false;
             }
         });

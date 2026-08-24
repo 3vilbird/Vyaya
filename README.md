@@ -238,6 +238,11 @@ adb devices
 # Build, deploy, and launch Vyaya
 dotnet build src/Vyaya/Vyaya.csproj -t:Run -f net10.0-android
 ```
+dotnet build -t:Run -f net10.0-android
+
+for less size
+
+ dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release -p:AndroidPackageFormat=apk -r android-arm64
 
 ---
 

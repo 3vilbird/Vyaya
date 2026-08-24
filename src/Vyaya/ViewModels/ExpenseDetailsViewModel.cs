@@ -43,6 +43,9 @@ public partial class ExpenseDetailsViewModel : BaseViewModel, IQueryAttributable
     [ObservableProperty]
     private bool _isCategoryPickerOpen;
 
+    [ObservableProperty]
+    private bool _isCopiedToastVisible;
+
     public ObservableCollection<Category> Categories { get; } = new();
     public ObservableCollection<Category> FilteredCategories { get; } = new();
     public ObservableCollection<Category> QuickCategories { get; } = new();
@@ -148,7 +151,46 @@ public partial class ExpenseDetailsViewModel : BaseViewModel, IQueryAttributable
     }
 
     [RelayCommand]
+    public async Task CopyUpiIdAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(PaymentAddress))
+        {
+            try
+            {
+                await Clipboard.Default.SetTextAsync(PaymentAddress);
+                IsCopiedToastVisible = true;
+                await Task.Delay(2000);
+                IsCopiedToastVisible = false;
+            }
+            catch { }
+        }
+    }
+
+    [RelayCommand]
     public async Task PayWithUpiAsync()
+    {
+        await ExecutePaymentFlowAsync(null);
+    }
+
+    [RelayCommand]
+    public async Task PayWithPhonePeAsync()
+    {
+        await ExecutePaymentFlowAsync("com.phonepe.app");
+    }
+
+    [RelayCommand]
+    public async Task PayWithGPayAsync()
+    {
+        await ExecutePaymentFlowAsync("com.google.android.apps.nbu.paisa.user");
+    }
+
+    [RelayCommand]
+    public async Task PayWithPaytmAsync()
+    {
+        await ExecutePaymentFlowAsync("net.one97.paytm");
+    }
+
+    private async Task ExecutePaymentFlowAsync(string? specificPackage)
     {
         if (PaymentRequest == null)
         {
@@ -167,6 +209,12 @@ public partial class ExpenseDetailsViewModel : BaseViewModel, IQueryAttributable
 
         try
         {
+            // Auto copy UPI address for seamless clipboard pasting
+            if (!string.IsNullOrWhiteSpace(PaymentAddress))
+            {
+                try { await Clipboard.Default.SetTextAsync(PaymentAddress); } catch { }
+            }
+
             var categoryName = SelectedCategory?.Name ?? "Other";
 
             // CRITICAL STEP: Save as Pending in SQLite BEFORE launching UPI application
@@ -178,7 +226,15 @@ public partial class ExpenseDetailsViewModel : BaseViewModel, IQueryAttributable
             );
 
             // Launch UPI application
-            var result = await _paymentLauncher.LaunchAsync(PaymentRequest, amount);
+            UpiPaymentResult result;
+            if (!string.IsNullOrEmpty(specificPackage))
+            {
+                result = await _paymentLauncher.LaunchPackageAsync(specificPackage, PaymentRequest, amount);
+            }
+            else
+            {
+                result = await _paymentLauncher.LaunchAsync(PaymentRequest, amount);
+            }
 
             if (result.Status == ExpenseStatus.Failed && !string.IsNullOrEmpty(result.ErrorMessage))
             {
@@ -187,7 +243,7 @@ public partial class ExpenseDetailsViewModel : BaseViewModel, IQueryAttributable
                 return;
             }
 
-            // Return to Home or open Expense Details
+            // Return to Home
             await Shell.Current.GoToAsync("///home");
         }
         catch (Exception ex)

@@ -7,11 +7,29 @@
 	<uses-feature android:name="android.hardware.camera" android:required="false" />
 	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
-	<!-- Queries declaration for Android 11+ package visibility to detect UPI apps -->
+	<!-- Queries declaration for Android 11+ (API 30+) package visibility for all UPI apps -->
 	<queries>
+		<!-- Generic UPI Schemes -->
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="upi" android:host="pay" />
+		</intent>
 		<intent>
 			<action android:name="android.intent.action.VIEW" />
 			<data android:scheme="upi" />
 		</intent>
+
+		<!-- Specific UPI Payment Application Packages -->
+		<package android:name="com.phonepe.app" />
+		<package android:name="com.google.android.apps.nbu.paisa.user" />
+		<package android:name="net.one97.paytm" />
+		<package android:name="in.org.npci.upiapp" />
+		<package android:name="com.dreamplug.androidapp" />
+		<package android:name="in.amazon.mShop.android.shopping" />
+		<package android:name="com.upi.axispay" />
+		<package android:name="com.mobikwik_new" />
+		<package android:name="com.whatsapp" />
+		<package android:name="org.slice.app" />
+		<package android:name="club.slice.android" />
 	</queries>
 </manifest>

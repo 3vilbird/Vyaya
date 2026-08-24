@@ -1,0 +1,80 @@
+name: iOS Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag Name (e.g. v1.0.1)'
+        required: true
+        default: 'v1.0.1'
+      release_title:
+        description: 'Release Title'
+        required: true
+        default: 'Vyaya iOS Release v1.0.1'
+      is_draft:
+        description: 'Create as Draft Release'
+        type: boolean
+        required: false
+        default: false
+      is_prerelease:
+        description: 'Create as Pre-release'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-ios:
+    name: Build & Package iOS
+    runs-on: macos-15
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install .NET MAUI iOS Workload
+      run: dotnet workload install maui-ios
+
+    - name: Restore NuGet Dependencies
+      run: dotnet restore src/Vyaya/Vyaya.csproj
+
+    - name: Build and Publish iOS Application
+      run: |
+        dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-ios -c Release -r ios-arm64 -p:ArchiveOnBuild=true
+
+    - name: Package iOS Artifacts
+      run: |
+        mkdir -p ./release-artifacts
+        
+        # Check for generated .ipa or archive payload
+        IPA_FILE=$(find src/Vyaya/bin/Release/net10.0-ios -name "*.ipa" | head -n 1)
+        if [ -n "$IPA_FILE" ]; then
+          echo "Found IPA: $IPA_FILE"
+          cp "$IPA_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.ipa"
+        else
+          echo "Zipping app bundle payload..."
+          APP_DIR=$(find src/Vyaya/bin/Release/net10.0-ios -name "*.app" | head -n 1)
+          if [ -n "$APP_DIR" ]; then
+            ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.app.zip"
+          fi
+        fi
+
+    - name: Attach iOS Artifact to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ inputs.tag_name }}
+        name: ${{ inputs.release_title }}
+        draft: ${{ inputs.is_draft }}
+        prerelease: ${{ inputs.is_prerelease }}
+        generate_release_notes: true
+        files: |
+          ./release-artifacts/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

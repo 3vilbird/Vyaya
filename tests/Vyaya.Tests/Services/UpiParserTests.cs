@@ -143,7 +143,7 @@ public class UpiParserTests
         };
 
         var uri = request.BuildUpiUri(500m);
-        Assert.Contains("pa=test%40upi", uri);
+        Assert.Contains("pa=test@upi", uri);
         Assert.Contains("pn=Test%20Merchant", uri);
         Assert.Contains("am=500.00", uri);
         Assert.Contains("cu=INR", uri);

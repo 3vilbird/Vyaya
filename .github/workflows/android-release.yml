@@ -1,0 +1,130 @@
+name: Android Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag Name (e.g. v1.0.1)'
+        required: true
+        default: 'v1.0.1'
+      release_title:
+        description: 'Release Title'
+        required: true
+        default: 'Vyaya Android Release v1.0.1'
+      is_draft:
+        description: 'Create as Draft Release'
+        type: boolean
+        required: false
+        default: false
+      is_prerelease:
+        description: 'Create as Pre-release'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build & Package Android
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Java (JDK 17)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install .NET MAUI Android Workload
+      run: dotnet workload install maui-android
+
+    - name: Restore NuGet Dependencies
+      run: dotnet restore src/Vyaya/Vyaya.csproj
+
+    - name: Decode Signing Keystore (Optional)
+      id: check_keystore
+      run: |
+        if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+          echo "Decoding release keystore from secrets..."
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > /tmp/vyaya-release.keystore
+          echo "has_keystore=true" >> $GITHUB_OUTPUT
+        else
+          echo "No KEYSTORE_BASE64 secret found. Using default signing."
+          echo "has_keystore=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build Release APK
+      run: |
+        if [ "${{ steps.check_keystore.outputs.has_keystore }}" = "true" ]; then
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+            -p:AndroidPackageFormat=apk \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=/tmp/vyaya-release.keystore \
+            -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
+            -p:AndroidSigningKeyPass="${{ secrets.KEY_PASSWORD }}" \
+            -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        else
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+            -p:AndroidPackageFormat=apk
+        fi
+
+    - name: Build Release AAB (Google Play Store Bundle)
+      run: |
+        if [ "${{ steps.check_keystore.outputs.has_keystore }}" = "true" ]; then
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+            -p:AndroidPackageFormat=aab \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=/tmp/vyaya-release.keystore \
+            -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
+            -p:AndroidSigningKeyPass="${{ secrets.KEY_PASSWORD }}" \
+            -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        else
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+            -p:AndroidPackageFormat=aab
+        fi
+
+    - name: Prepare Release Artifacts
+      run: |
+        mkdir -p ./release-artifacts
+        
+        # Find and copy signed APK
+        APK_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*-Signed.apk" | head -n 1)
+        if [ -z "$APK_FILE" ]; then
+          APK_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*.apk" | head -n 1)
+        fi
+        
+        # Find and copy signed AAB
+        AAB_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*-Signed.aab" | head -n 1)
+        if [ -z "$AAB_FILE" ]; then
+          AAB_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*.aab" | head -n 1)
+        fi
+
+        echo "Found APK: $APK_FILE"
+        echo "Found AAB: $AAB_FILE"
+
+        cp "$APK_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.apk"
+        cp "$AAB_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab"
+
+    - name: Attach APK and AAB to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ inputs.tag_name }}
+        name: ${{ inputs.release_title }}
+        draft: ${{ inputs.is_draft }}
+        prerelease: ${{ inputs.is_prerelease }}
+        generate_release_notes: true
+        files: |
+          ./release-artifacts/Vyaya-${{ inputs.tag_name }}.apk
+          ./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

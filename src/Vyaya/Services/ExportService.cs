@@ -10,7 +10,7 @@ public class ExportService : IExportService
     {
         var sb = new StringBuilder();
 
-        // UTF-8 BOM for flawless Excel opening
+        // UTF-8 BOM for seamless Excel compatibility
         sb.Append('\uFEFF');
 
         // Headers as requested by AGENTS.md Section 27
@@ -18,7 +18,10 @@ public class ExportService : IExportService
 
         foreach (var expense in expenses.OrderByDescending(e => e.ExpenseDateUtc ?? e.CreatedAtUtc))
         {
-            var dateStr = (expense.ExpenseDateUtc ?? expense.CreatedAtUtc).ToLocalTime().ToString("dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+            // Format as normal string in dd/MM/yyyy format to prevent Excel ### column overflow
+            var date = (expense.ExpenseDateUtc ?? expense.CreatedAtUtc).ToLocalTime();
+            var dateStr = EscapeCsv(date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture));
+            
             var description = EscapeCsv(expense.DisplayTitle);
             var amountStr = expense.Amount.ToString("0.00", CultureInfo.InvariantCulture);
             var currency = EscapeCsv(expense.Currency);
@@ -72,9 +75,7 @@ public class ExportService : IExportService
         if (string.IsNullOrEmpty(value))
             return "\"\"";
 
-        var mustQuote = value.Contains(',') || value.Contains('\"') || value.Contains('\r') || value.Contains('\n');
         var escaped = value.Replace("\"", "\"\"");
-
-        return mustQuote ? $"\"{escaped}\"" : $"\"{escaped}\"";
+        return $"\"{escaped}\"";
     }
 }
