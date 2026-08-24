@@ -104,6 +104,12 @@ public class UpiParser : IUpiParser
                 RawPayload = originalPayload
             };
 
+            // Preserve all original QR parameters (mc, tr, mode, orgid, sign, mid, etc.)
+            foreach (var kvp in queryDictionary)
+            {
+                request.AdditionalParameters[kvp.Key] = kvp.Value;
+            }
+
             if (queryDictionary.TryGetValue("pn", out var payeeName) && !string.IsNullOrWhiteSpace(payeeName))
             {
                 request.PayeeName = payeeName.Trim();
