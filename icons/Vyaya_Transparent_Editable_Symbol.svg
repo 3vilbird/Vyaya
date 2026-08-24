@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1024" height="1024" viewBox="0 0 1024 1024"
+     role="img" aria-label="Vyaya editable transparent logo symbol">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#FFD43B"/>
+      <stop offset="48%" stop-color="#FFB512"/>
+      <stop offset="100%" stop-color="#F28A0A"/>
+    </linearGradient>
+    <linearGradient id="bars" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A9A8FF"/>
+      <stop offset="100%" stop-color="#6867D8"/>
+    </linearGradient>
+  </defs>
+  <g id="vyaya-mark" fill="url(#gold)">
+    <path d="M155 290 L255 290 L495 682 Q512 710 529 682 L768 350 L855 272 L680 690 Q650 760 600 814 Q558 858 512 858 Q464 858 425 810 Q397 778 367 730 Z"/>
+    <path d="M768 350 L855 272 Q875 252 852 300 L690 648 Q665 700 625 744 L575 690 Q612 648 637 596 Z"/>
+  </g>
+  <g id="rupee-mark" fill="url(#gold)">
+    <path d="M390 235 L650 235 Q664 235 655 249 L622 292 L390 292 Q376 292 385 278 Z"/>
+    <path d="M390 315 L650 315 Q664 315 655 329 L624 370 L390 370 Q376 370 385 356 Z"/>
+    <path d="M548 286 Q620 288 638 338 Q654 385 623 429 Q598 466 548 480 L508 480 L600 575 L552 626 L430 500 Q420 489 430 478 L480 426 L530 426 Q562 426 576 404 Q587 386 577 370 Q565 350 530 350 L500 350 L548 286 Z"/>
+  </g>
+  <g id="analytics">
+    <path d="M390 820 H438 V752 H390 Z" fill="url(#bars)"/>
+    <path d="M475 820 H523 V690 H475 Z" fill="url(#bars)"/>
+    <path d="M560 820 H608 V625 H560 Z" fill="url(#bars)"/>
+    <path d="M245 862 Q512 755 780 862 Q512 810 245 862 Z" fill="#6867D8" opacity="0.75"/>
+  </g>
+</svg>

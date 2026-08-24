@@ -45,6 +45,7 @@ public class ExportServiceTests
         Assert.Contains("Date,Merchant / Description,Amount,Currency,Category,Payment Method,Entry Type,Note,UPI ID,Payment Reference,Status", csv);
         
         // Content verification
+        Assert.Contains("\"23/08/2026\"", csv);
         Assert.Contains("450.00", csv);
         Assert.Contains("ABC \"\"Super\"\" Store, Market", csv);
         Assert.Contains("180.00", csv);
