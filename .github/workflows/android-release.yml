@@ -71,10 +71,10 @@ jobs:
           echo "has_keystore=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: Build Release APK
+    - name: Build Release APK (Optimized for Android Phones - ARM64)
       run: |
         if [ "${{ steps.check_keystore.outputs.has_keystore }}" = "true" ]; then
-          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release -r android-arm64 \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=/tmp/vyaya-release.keystore \
@@ -82,7 +82,7 @@ jobs:
             -p:AndroidSigningKeyPass="${{ secrets.KEY_PASSWORD }}" \
             -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
         else
-          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release \
+          dotnet publish src/Vyaya/Vyaya.csproj -f net10.0-android -c Release -r android-arm64 \
             -p:AndroidPackageFormat=apk
         fi
 
@@ -105,20 +105,20 @@ jobs:
       run: |
         mkdir -p ./release-artifacts
         
-        # Find and copy signed APK
-        APK_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*-Signed.apk" | head -n 1)
+        # Find signed or unsigned arm64 APK
+        APK_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*Signed.apk" | head -n 1)
         if [ -z "$APK_FILE" ]; then
           APK_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*.apk" | head -n 1)
         fi
         
-        # Find and copy signed AAB
-        AAB_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*-Signed.aab" | head -n 1)
+        # Find signed or unsigned AAB
+        AAB_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*Signed.aab" | head -n 1)
         if [ -z "$AAB_FILE" ]; then
           AAB_FILE=$(find src/Vyaya/bin/Release/net10.0-android -name "*.aab" | head -n 1)
         fi
 
-        echo "Found APK: $APK_FILE"
-        echo "Found AAB: $AAB_FILE"
+        echo "Selected APK: $APK_FILE"
+        echo "Selected AAB: $AAB_FILE"
 
         cp "$APK_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.apk"
         cp "$AAB_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab"
