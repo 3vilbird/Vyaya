@@ -148,4 +148,45 @@ public class UpiParserTests
         Assert.Contains("am=500.00", uri);
         Assert.Contains("cu=INR", uri);
     }
+
+    [Fact]
+    public void Parse_CorporateMerchantWithPOSParameters_PreservesAllParameters()
+    {
+        var apolloQr = "upi://pay?pa=APPOLOPHARMACYKARPL@ybl&pn=Apollo%20Pharmacy&mc=5912&tr=APO12345678&mode=02&orgid=159002&cu=INR&am=245.50";
+        var result = _parser.Parse(apolloQr);
+
+        Assert.NotNull(result);
+        Assert.Equal("APPOLOPHARMACYKARPL@ybl", result.PaymentAddress);
+        Assert.Equal("Apollo Pharmacy", result.PayeeName);
+        Assert.Equal("5912", result.MerchantCode);
+        Assert.Equal("APO12345678", result.TransactionReference);
+        Assert.Equal(245.50m, result.Amount);
+        Assert.Equal("02", result.AdditionalParameters["mode"]);
+        Assert.Equal("159002", result.AdditionalParameters["orgid"]);
+
+        // Rebuild and ensure all merchant parameters are retained
+        var rebuiltUri = result.BuildUpiUri();
+        Assert.Contains("pa=APPOLOPHARMACYKARPL%40ybl", rebuiltUri.Replace("@", "%40"));
+        Assert.Contains("mc=5912", rebuiltUri);
+        Assert.Contains("tr=APO12345678", rebuiltUri);
+        Assert.Contains("mode=02", rebuiltUri);
+        Assert.Contains("orgid=159002", rebuiltUri);
+        Assert.Contains("am=245.50", rebuiltUri);
+    }
+
+    [Fact]
+    public void BuildUpiUri_WhenAmountOverridden_PreservesMerchantParametersWithNewAmount()
+    {
+        var apolloQr = "upi://pay?pa=APPOLOPHARMACYKARPL@ybl&pn=Apollo%20Pharmacy&mc=5912&tr=APO999&mode=02";
+        var result = _parser.Parse(apolloQr);
+
+        Assert.NotNull(result);
+        var customAmountUri = result.BuildUpiUri(150.00m);
+
+        Assert.Contains("am=150.00", customAmountUri);
+        Assert.Contains("mc=5912", customAmountUri);
+        Assert.Contains("tr=APO999", customAmountUri);
+        Assert.Contains("mode=02", customAmountUri);
+        Assert.Contains("cu=INR", customAmountUri);
+    }
 }
