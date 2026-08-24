@@ -45,6 +45,14 @@ jobs:
       with:
         dotnet-version: '10.0.x'
 
+    - name: Cache NuGet Packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj*') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
     - name: Install .NET MAUI Android Workload
       run: dotnet workload install maui-android
 
@@ -115,7 +123,7 @@ jobs:
         cp "$APK_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.apk"
         cp "$AAB_FILE" "./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab"
 
-    - name: Attach APK and AAB to GitHub Release
+    - name: Attach APK and AAB to Current Repo Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ inputs.tag_name }}
@@ -128,3 +136,20 @@ jobs:
           ./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Ship Release to Public Repository (3vilbird/Vyaya-Local-First-Expense-Tracker)
+      if: env.HAS_PUBLIC_TOKEN == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: 3vilbird/Vyaya-Local-First-Expense-Tracker
+        token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        tag_name: ${{ inputs.tag_name }}
+        name: ${{ inputs.release_title }}
+        draft: ${{ inputs.is_draft }}
+        prerelease: ${{ inputs.is_prerelease }}
+        generate_release_notes: true
+        files: |
+          ./release-artifacts/Vyaya-${{ inputs.tag_name }}.apk
+          ./release-artifacts/Vyaya-${{ inputs.tag_name }}.aab
+      env:
+        HAS_PUBLIC_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN != '' }}

@@ -27,6 +27,7 @@ Generated_Files/
 *.dex
 *.keystore
 *.jks
+*keystore*.txt
 *.class
 
 # iOS / Apple

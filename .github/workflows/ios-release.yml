@@ -66,7 +66,7 @@ jobs:
           fi
         fi
 
-    - name: Attach iOS Artifact to GitHub Release
+    - name: Attach iOS Artifact to Current Repo Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ inputs.tag_name }}
@@ -78,3 +78,19 @@ jobs:
           ./release-artifacts/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Ship Release to Public Repository (3vilbird/Vyaya-Local-First-Expense-Tracker)
+      if: env.HAS_PUBLIC_TOKEN == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: 3vilbird/Vyaya-Local-First-Expense-Tracker
+        token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        tag_name: ${{ inputs.tag_name }}
+        name: ${{ inputs.release_title }}
+        draft: ${{ inputs.is_draft }}
+        prerelease: ${{ inputs.is_prerelease }}
+        generate_release_notes: true
+        files: |
+          ./release-artifacts/*
+      env:
+        HAS_PUBLIC_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN != '' }}
