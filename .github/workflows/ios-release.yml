@@ -79,21 +79,28 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Ship Release to Public Repository (3vilbird/Vyaya-Local-First-Expense-Tracker)
-      if: ${{ secrets.PUBLIC_REPO_TOKEN != '' }}
+    - name: Ship Release to Public Repository (Optional)
+      env:
+        PUB_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+      continue-on-error: true
       run: |
+        if [ -z "$PUB_TOKEN" ]; then
+          echo "PUBLIC_REPO_TOKEN secret is not set. Skipping public repository release."
+          exit 0
+        fi
+
         echo "Publishing iOS release to public repository 3vilbird/Vyaya-Local-First-Expense-Tracker..."
         FLAGS=""
         if [ "${{ inputs.is_draft }}" = "true" ]; then FLAGS="$FLAGS --draft"; fi
         if [ "${{ inputs.is_prerelease }}" = "true" ]; then FLAGS="$FLAGS --prerelease"; fi
 
-        GH_TOKEN="${{ secrets.PUBLIC_REPO_TOKEN }}" gh release create "${{ inputs.tag_name }}" \
+        GH_TOKEN="$PUB_TOKEN" gh release create "${{ inputs.tag_name }}" \
           --repo "3vilbird/Vyaya-Local-First-Expense-Tracker" \
           --title "${{ inputs.release_title }}" \
           --generate-notes \
           $FLAGS \
           ./release-artifacts/* || \
-        GH_TOKEN="${{ secrets.PUBLIC_REPO_TOKEN }}" gh release upload "${{ inputs.tag_name }}" \
+        GH_TOKEN="$PUB_TOKEN" gh release upload "${{ inputs.tag_name }}" \
           --repo "3vilbird/Vyaya-Local-First-Expense-Tracker" \
           --clobber \
           ./release-artifacts/*
