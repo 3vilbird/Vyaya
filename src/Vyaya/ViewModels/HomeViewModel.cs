@@ -24,17 +24,10 @@ public partial class HomeViewModel : BaseViewModel
     private string _averageExpense = "₹0";
 
     [ObservableProperty]
-    private bool _hasPendingAttention;
-
-    [ObservableProperty]
-    private int _pendingAttentionCount;
-
-    [ObservableProperty]
     private bool _isRefreshing;
 
     public ObservableCollection<Expense> RecentExpenses { get; } = new();
     public ObservableCollection<CategoryExpenseSummary> TopCategories { get; } = new();
-    public ObservableCollection<Expense> PendingAttentionExpenses { get; } = new();
 
     public HomeViewModel(IExpenseService expenseService, IExpenseReportService reportService)
     {
@@ -76,17 +69,6 @@ public partial class HomeViewModel : BaseViewModel
             {
                 RecentExpenses.Add(exp);
             }
-
-            // Load Pending Attention
-            var pending = await _expenseService.GetPendingAttentionExpensesAsync();
-            PendingAttentionExpenses.Clear();
-            foreach (var p in pending)
-            {
-                PendingAttentionExpenses.Add(p);
-            }
-
-            PendingAttentionCount = pending.Count;
-            HasPendingAttention = PendingAttentionCount > 0;
         }
         catch (Exception ex)
         {
@@ -97,12 +79,6 @@ public partial class HomeViewModel : BaseViewModel
             IsBusy = false;
             IsRefreshing = false;
         }
-    }
-
-    [RelayCommand]
-    public async Task ScanAndPayAsync()
-    {
-        await Shell.Current.GoToAsync("///scan");
     }
 
     [RelayCommand]

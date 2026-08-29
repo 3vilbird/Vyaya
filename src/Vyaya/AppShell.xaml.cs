@@ -9,7 +9,6 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         Routing.RegisterRoute("addExpense", typeof(AddExpensePage));
-        Routing.RegisterRoute("expenseDetails", typeof(ExpenseDetailsPage));
         Routing.RegisterRoute("expenseDetail", typeof(ExpenseDetailPage));
     }
 }

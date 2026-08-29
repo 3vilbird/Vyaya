@@ -28,7 +28,7 @@
 		<ApplicationId>com.ganapatimarathi.vyaya</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.0.2</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
@@ -39,6 +39,20 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+	</PropertyGroup>
+
+	<!-- Production Release Size & Performance Optimizations -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' and '$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'android'">
+		<!-- Google R8 Code & Resource Shrinker: strips unused AndroidX and Java classes -->
+		<AndroidEnableCodeShrinking>true</AndroidEnableCodeShrinking>
+		<AndroidUseApkShrinking>true</AndroidUseApkShrinking>
+
+		<!-- Profiled AOT: precompiles hot startup paths while avoiding multi-megabyte .so bloat -->
+		<AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+
+		<!-- .NET IL Trimmer: strips unused C# methods and assemblies -->
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -65,7 +79,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
-		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.10.4" />
 	</ItemGroup>
 
 </Project>

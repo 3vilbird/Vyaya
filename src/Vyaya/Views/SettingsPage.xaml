@@ -21,7 +21,7 @@
                         <Label Text="Privacy Guarantee" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
 
-                    <Label Text="Vyaya is 100% local-first. Your financial records, QR payment data, notes, and categories are stored solely inside SQLite on this device. No data is ever uploaded to any cloud server."
+                    <Label Text="Vyaya is 100% local-first. Your financial records, notes, and categories are stored solely inside SQLite on this device. No data is ever uploaded to any cloud server."
                            FontSize="12"
                            TextColor="{StaticResource TextSecondary}"
                            LineBreakMode="WordWrap"/>

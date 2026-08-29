@@ -8,8 +8,6 @@ namespace Vyaya.ViewModels;
 public partial class ExpenseDetailViewModel : BaseViewModel, IQueryAttributable
 {
     private readonly IExpenseService _expenseService;
-    private readonly IUpiPaymentLauncher _paymentLauncher;
-    private readonly IUpiParser _upiParser;
 
     [ObservableProperty]
     private Expense? _expense;
@@ -17,17 +15,9 @@ public partial class ExpenseDetailViewModel : BaseViewModel, IQueryAttributable
     [ObservableProperty]
     private bool _canReconcile;
 
-    [ObservableProperty]
-    private bool _isUpiScan;
-
-    public ExpenseDetailViewModel(
-        IExpenseService expenseService,
-        IUpiPaymentLauncher paymentLauncher,
-        IUpiParser upiParser)
+    public ExpenseDetailViewModel(IExpenseService expenseService)
     {
         _expenseService = expenseService;
-        _paymentLauncher = paymentLauncher;
-        _upiParser = upiParser;
         Title = "Expense Receipt";
     }
 
@@ -42,7 +32,6 @@ public partial class ExpenseDetailViewModel : BaseViewModel, IQueryAttributable
     private void SetCurrentExpense(Expense exp)
     {
         Expense = exp;
-        IsUpiScan = exp.EntryType == ExpenseEntryType.UpiScan;
         CanReconcile = exp.Status == ExpenseStatus.Pending || exp.Status == ExpenseStatus.Unknown;
     }
 
@@ -86,22 +75,6 @@ public partial class ExpenseDetailViewModel : BaseViewModel, IQueryAttributable
         await _expenseService.UpdateExpenseStatusAsync(Expense.Id, ExpenseStatus.Failed);
         Expense.Status = ExpenseStatus.Failed;
         SetCurrentExpense(Expense);
-    }
-
-    [RelayCommand]
-    public async Task RelaunchUpiPaymentAsync()
-    {
-        if (Expense == null || string.IsNullOrWhiteSpace(Expense.RawUpiPayload))
-        {
-            SetError("No UPI data available to relaunch payment.");
-            return;
-        }
-
-        var request = _upiParser.Parse(Expense.RawUpiPayload);
-        if (request != null)
-        {
-            await _paymentLauncher.LaunchAsync(request, Expense.Amount);
-        }
     }
 
     [RelayCommand]

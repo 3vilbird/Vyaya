@@ -12,8 +12,8 @@
             <ShellContent ContentTemplate="{DataTemplate views:HomePage}" Route="homePage" />
         </Tab>
 
-        <Tab Title="Scan &amp; Pay" Icon="dotnet_bot.png" Route="scan">
-            <ShellContent ContentTemplate="{DataTemplate views:ScanPage}" Route="scanPage" />
+        <Tab Title="Add" Icon="dotnet_bot.png" Route="add">
+            <ShellContent ContentTemplate="{DataTemplate views:AddExpensePage}" Route="addExpenseTab" />
         </Tab>
 
         <Tab Title="History" Icon="dotnet_bot.png" Route="expenses">

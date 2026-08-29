@@ -35,30 +35,6 @@
                     </Border>
                 </Grid>
 
-                <!-- Pending / Attention Alert Banner (if any) -->
-                <Border IsVisible="{Binding HasPendingAttention}"
-                        Stroke="#80FF9F0A"
-                        StrokeShape="RoundRectangle 16"
-                        BackgroundColor="#20FF9F0A"
-                        Padding="14,12">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
-                        <Label Text="⚠️" FontSize="22" VerticalOptions="Center"/>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                            <Label Text="Payment Status Attention" FontSize="14" FontFamily="OpenSansSemibold" TextColor="#FF9F0A"/>
-                            <Label Text="{Binding PendingAttentionCount, StringFormat='{0} UPI payment(s) awaiting confirmation'}" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
-                        </VerticalStackLayout>
-                        <Button Grid.Column="2"
-                                Text="Review"
-                                FontSize="12"
-                                HeightRequest="34"
-                                Padding="12,0"
-                                BackgroundColor="#FF9F0A"
-                                TextColor="#000000"
-                                CornerRadius="10"
-                                Command="{Binding ViewAllExpensesCommand}"/>
-                    </Grid>
-                </Border>
-
                 <!-- Hero Spending Card -->
                 <Border Stroke="{StaticResource CardBorder}"
                         StrokeShape="RoundRectangle 22"
@@ -102,41 +78,36 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Primary Action Cards -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <!-- Scan & Pay Card -->
-                    <Border Stroke="{StaticResource IosBlue}"
-                            StrokeShape="RoundRectangle 18"
-                            BackgroundColor="#150A84FF"
-                            Padding="16"
-                            HeightRequest="120">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ScanAndPayCommand}"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout VerticalOptions="Center" Spacing="8">
-                            <Label Text="📷" FontSize="26"/>
-                            <Label Text="Scan &amp; Pay" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource IosBlue}"/>
-                            <Label Text="UPI QR Code" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
-                        </VerticalStackLayout>
-                    </Border>
+                <!-- Primary Action Card: Add Expense -->
+                <Border Stroke="{StaticResource IosBlue}"
+                        StrokeShape="RoundRectangle 18"
+                        BackgroundColor="{StaticResource CardBackground}"
+                        Padding="16,14">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddExpenseCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" VerticalOptions="Center">
+                        <Border WidthRequest="44" HeightRequest="44"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="Transparent"
+                                BackgroundColor="#200A84FF">
+                            <Label Text="➕" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
 
-                    <!-- Add Expense Card -->
-                    <Border Grid.Column="1"
-                            Stroke="{StaticResource CardBorder}"
-                            StrokeShape="RoundRectangle 18"
-                            BackgroundColor="{StaticResource CardBackground}"
-                            Padding="16"
-                            HeightRequest="120">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding AddExpenseCommand}"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout VerticalOptions="Center" Spacing="8">
-                            <Label Text="✍️" FontSize="26"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Add Expense" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource TextPrimary}"/>
-                            <Label Text="Cash, Card, Other" FontSize="11" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Text="Cash, UPI, Card, Transfer &amp; more" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
                         </VerticalStackLayout>
-                    </Border>
-                </Grid>
+
+                        <Border Grid.Column="2"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource IosBlue}"
+                                Padding="12,6"
+                                VerticalOptions="Center">
+                            <Label Text="Add" FontSize="13" FontFamily="OpenSansSemibold" TextColor="{StaticResource White}"/>
+                        </Border>
+                    </Grid>
+                </Border>
 
                 <!-- Top Categories Section (if any) -->
                 <VerticalStackLayout Spacing="10" IsVisible="{Binding TopCategories.Count, Converter={StaticResource CountToVisibilityConverter}}">
@@ -195,7 +166,7 @@
                         <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                             <Label Text="🧾" FontSize="36" HorizontalOptions="Center"/>
                             <Label Text="No expenses recorded yet" FontSize="15" FontFamily="OpenSansSemibold" HorizontalOptions="Center" TextColor="{StaticResource TextPrimary}"/>
-                            <Label Text="Scan a UPI QR code or add an expense manually." FontSize="12" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center"/>
+                            <Label Text="Add an expense to start tracking your spending." FontSize="12" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center"/>
                         </VerticalStackLayout>
                     </Border>
 

@@ -5,7 +5,6 @@ namespace Vyaya.Services;
 public interface IExpenseService
 {
     Task<Expense> CreateManualExpenseAsync(decimal amount, string category, PaymentMethod method, string? note, DateTime expenseDate);
-    Task<Expense> CreatePendingUpiExpenseAsync(UpiPaymentRequest request, decimal amount, string category, string? userNote);
     Task<Expense?> GetExpenseByIdAsync(Guid id);
     Task<List<Expense>> GetRecentExpensesAsync(int limit = 10);
     Task<List<Expense>> GetPendingAttentionExpensesAsync();

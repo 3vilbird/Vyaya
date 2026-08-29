@@ -33,31 +33,6 @@ public class ExpenseService : IExpenseService
         return expense;
     }
 
-    public async Task<Expense> CreatePendingUpiExpenseAsync(UpiPaymentRequest request, decimal amount, string category, string? userNote)
-    {
-        var expense = new Expense
-        {
-            Id = Guid.NewGuid(),
-            Amount = amount,
-            Category = category,
-            PaymentMethod = PaymentMethod.Upi,
-            MerchantName = request.PayeeName?.Trim(),
-            UpiId = request.PaymentAddress?.Trim(),
-            UpiTransactionNote = request.TransactionNote?.Trim(),
-            Note = userNote?.Trim(),
-            RawUpiPayload = request.RawPayload,
-            PaymentReference = request.TransactionReference,
-            EntryType = ExpenseEntryType.UpiScan,
-            Status = ExpenseStatus.Pending, // Saved BEFORE launching payment app
-            CreatedAtUtc = DateTime.UtcNow,
-            ExpenseDateUtc = DateTime.UtcNow,
-            Currency = string.IsNullOrWhiteSpace(request.Currency) ? "INR" : request.Currency
-        };
-
-        await _repository.InsertAsync(expense);
-        return expense;
-    }
-
     public async Task<Expense?> GetExpenseByIdAsync(Guid id)
     {
         return await _repository.GetByIdAsync(id);

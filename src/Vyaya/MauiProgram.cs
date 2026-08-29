@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using ZXing.Net.Maui.Controls;
 using Vyaya.Data;
 using Vyaya.Services;
 using Vyaya.ViewModels;
@@ -14,7 +13,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseBarcodeReader()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -31,8 +29,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<IExpenseRepository, ExpenseRepository>();
 
         // Domain Services
-        builder.Services.AddSingleton<IUpiParser, UpiParser>();
-        builder.Services.AddSingleton<IUpiPaymentLauncher, UpiPaymentLauncher>();
         builder.Services.AddSingleton<ICategoryService, CategoryService>();
         builder.Services.AddSingleton<IExpenseService, ExpenseService>();
         builder.Services.AddSingleton<IExpenseReportService, ExpenseReportService>();
@@ -40,8 +36,6 @@ public static class MauiProgram
 
         // ViewModels
         builder.Services.AddTransient<HomeViewModel>();
-        builder.Services.AddTransient<ScanViewModel>();
-        builder.Services.AddTransient<ExpenseDetailsViewModel>();
         builder.Services.AddTransient<AddExpenseViewModel>();
         builder.Services.AddTransient<ExpensesViewModel>();
         builder.Services.AddTransient<ExpenseDetailViewModel>();
@@ -50,8 +44,6 @@ public static class MauiProgram
 
         // Views
         builder.Services.AddTransient<HomePage>();
-        builder.Services.AddTransient<ScanPage>();
-        builder.Services.AddTransient<ExpenseDetailsPage>();
         builder.Services.AddTransient<AddExpensePage>();
         builder.Services.AddTransient<ExpensesPage>();
         builder.Services.AddTransient<ExpenseDetailPage>();
