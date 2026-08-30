@@ -8,23 +8,23 @@
     FlyoutBehavior="Disabled">
 
     <TabBar>
-        <Tab Title="Home" Icon="dotnet_bot.png" Route="home">
+        <Tab Title="Home" Icon="home.svg" Route="home">
             <ShellContent ContentTemplate="{DataTemplate views:HomePage}" Route="homePage" />
         </Tab>
 
-        <Tab Title="Add" Icon="dotnet_bot.png" Route="add">
+        <Tab Title="Add" Icon="add.svg" Route="add">
             <ShellContent ContentTemplate="{DataTemplate views:AddExpensePage}" Route="addExpenseTab" />
         </Tab>
 
-        <Tab Title="History" Icon="dotnet_bot.png" Route="expenses">
+        <Tab Title="History" Icon="history.svg" Route="expenses">
             <ShellContent ContentTemplate="{DataTemplate views:ExpensesPage}" Route="expensesPage" />
         </Tab>
 
-        <Tab Title="Analytics" Icon="dotnet_bot.png" Route="analytics">
+        <Tab Title="Analytics" Icon="analytics.svg" Route="analytics">
             <ShellContent ContentTemplate="{DataTemplate views:MonthlySummaryPage}" Route="monthlySummaryPage" />
         </Tab>
 
-        <Tab Title="Settings" Icon="dotnet_bot.png" Route="settings">
+        <Tab Title="Settings" Icon="settings.svg" Route="settings">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="settingsPage" />
         </Tab>
     </TabBar>
