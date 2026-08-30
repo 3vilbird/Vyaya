@@ -7,7 +7,7 @@
 
 **Vyaya (व्यय)** is a Sanskrit-derived word meaning **expenditure, spending, or expense**.
 
-Vyaya is a modern, **local-first personal expense tracker** for Android built with **.NET 10 MAUI**, **C#**, and **SQLite**. It offers an elegant, iOS-grade aesthetic and user experience. Its primary signature differentiator is allowing users to instantly record an expense by scanning a UPI QR code and continuing the payment through PhonePe, Google Pay, Paytm, or another UPI application—while remaining **100% independent of any specific payment gateway or backend server**.
+Vyaya is a modern, **local-first personal expense tracker** for Android built with **.NET 10 MAUI**, **C#**, and **SQLite**. It offers an elegant, iOS-grade aesthetic and user experience. Vyaya is designed purely as an expense ledger to track all your spending across multiple payment methods (Cash, UPI, Credit Card, Debit Card, Bank Transfer, etc.) — while remaining **100% private and independent of any backend server**.
 
 ---
 
@@ -16,13 +16,12 @@ Vyaya is a modern, **local-first personal expense tracker** for Android built wi
 1. **Expense Tracker First, Not a Payment Processor**:
    - Vyaya **never** processes payments itself.
    - Vyaya **never** handles UPI PINs, passwords, or bank credentials.
-   - All payment authentications happen securely inside your chosen banking or UPI application (PhonePe, GPay, etc.).
+   - All actual payment transactions happen inside your respective banking apps or outside Vyaya.
 2. **100% Local-First & Private**:
    - **Zero backend servers**: All transactions, categories, notes, and metrics reside purely inside an on-device SQLite database.
    - **Zero telemetry or data tracking**: Your financial privacy is completely preserved offline.
-3. **Dual Expense-Entry Flows**:
-   - **Mode A (Scan & Pay)**: Scan any UPI QR code, verify amount and category, save as `Pending` in SQLite, launch UPI app via Android intent chooser, and reconcile status.
-   - **Mode B (Manual Entry)**: First-class manual expense recording for Cash, Cards, Bank Transfers, and offline payments.
+3. **Streamlined Expense Recording**:
+   - Record expenses quickly with amounts, payment methods, categories, notes, and custom dates.
 
 ---
 
@@ -45,22 +44,13 @@ Vyaya is engineered using the **MVVM (Model-View-ViewModel)** pattern with .NET 
                                │   Domain Services Layer  │
                                └────────────┬─────────────┘
                                             │
-             ┌──────────────────────────────┼──────────────────────────────┐
-             │                              │                              │
-             ▼                              ▼                              ▼
-  ┌────────────────────┐         ┌────────────────────┐         ┌────────────────────┐
-  │  SQLite Database   │         │     UPI Parser     │         │ Reporting & Export │
-  │  (Local AppData)   │         │ (PhonePe/UPI/VPA)  │         │ (Donut / CSV / XL) │
-  └────────────────────┘         └──────────┬─────────┘         └────────────────────┘
-                                            │
-                                 ┌──────────▼─────────┐
-                                 │ Android UPI Intent │
-                                 │   Chooser Launcher │
-                                 └──────────┬─────────┘
-                                            │
-                             ┌──────────────┼──────────────┐
-                             ▼              ▼              ▼
-                         PhonePe        Google Pay       Paytm / Other
+                             ┌──────────────┴──────────────┐
+                             │                             │
+                             ▼                             ▼
+                  ┌────────────────────┐        ┌────────────────────┐
+                  │  SQLite Database   │        │ Reporting & Export │
+                  │  (Local AppData)   │        │ (Donut / CSV / XL) │
+                  └────────────────────┘        └────────────────────┘
 ```
 
 ---
@@ -72,7 +62,7 @@ expense-tracker/
 ├── AGENTS.md                                # Full product architecture specification
 ├── README.md                                # Setup, build, and architecture documentation
 ├── .gitignore                               # Git ignore configuration
-├── Vyaya.sln                                # Solution file
+├── Vyaya.slnx                               # Solution file
 ├── src/
 │   └── Vyaya/                               # .NET 10 MAUI Application Project
 │       ├── Controls/
@@ -89,52 +79,43 @@ expense-tracker/
 │       │   ├── Enums.cs                     # ExpenseEntryType, PaymentMethod, ExpenseStatus
 │       │   ├── Expense.cs                   # SQLite Expense entity with formatting helpers
 │       │   ├── Category.cs                  # Category entity with icons and colors
-│       │   ├── UpiPaymentRequest.cs         # Parsed UPI data model & URI builder
-│       │   ├── UpiPaymentResult.cs          # Payment execution result wrapper
 │       │   └── MonthlyExpenseSummary.cs     # Aggregated spending & category totals
 │       ├── Platforms/
 │       │   └── Android/
-│       │       └── AndroidManifest.xml      # Camera permissions & UPI intent queries
+│       │       └── AndroidManifest.xml      # Minimal permissions (No camera / no payment intent queries)
 │       ├── Resources/
 │       │   └── Styles/
 │       │       ├── Colors.xaml              # Apple iOS-style vibrant color palette
 │       │       └── Styles.xaml              # System controls, typography & elevation styles
 │       ├── Services/
-│       │   ├── IUpiParser.cs & UpiParser.cs                 # Multi-format UPI URI & VPA parser
-│       │   ├── IUpiPaymentLauncher.cs & UpiPaymentLauncher.cs # Android Intent chooser launcher
-│       │   ├── IExpenseService.cs & ExpenseService.cs       # Business logic & pending persistence
+│       │   ├── IExpenseService.cs & ExpenseService.cs       # Expense recording & retrieval
 │       │   ├── ICategoryService.cs & CategoryService.cs     # Category management & search
 │       │   ├── IExpenseReportService.cs & ExpenseReportService.cs # Pure monthly calculations
 │       │   └── IExportService.cs & ExportService.cs         # Offline RFC-4180 CSV / Excel export
 │       ├── ViewModels/
 │       │   ├── BaseViewModel.cs             # ObservableObject base with error handling
-│       │   ├── HomeViewModel.cs             # Dashboard hero metrics, attention banner & recents
-│       │   ├── ScanViewModel.cs             # Live camera scanning & clipboard paste
-│       │   ├── ExpenseDetailsViewModel.cs   # Scan review & "Pay with UPI" execution
-│       │   ├── AddExpenseViewModel.cs       # Manual expense entry with quick keypad
+│       │   ├── HomeViewModel.cs             # Dashboard hero metrics, top categories & recents
+│       │   ├── AddExpenseViewModel.cs       # Manual expense entry with quick keypad & chips
 │       │   ├── ExpensesViewModel.cs         # Date-grouped history with multi-filter search
-│       │   ├── ExpenseDetailViewModel.cs     # Digital receipt view & status reconciliation
+│       │   ├── ExpenseDetailViewModel.cs    # Digital receipt view & status updates
 │       │   ├── MonthlySummaryViewModel.cs   # Analytics, donut chart & month switcher
 │       │   └── SettingsViewModel.cs         # Local database stats & export manager
 │       ├── Views/
 │       │   ├── HomePage.xaml (.cs)          # Main Dashboard
-│       │   ├── ScanPage.xaml (.cs)          # Camera QR Scanner (ZXing.Net.Maui)
-│       │   ├── ExpenseDetailsPage.xaml (.cs)# Payment Confirmation Page
-│       │   ├── AddExpensePage.xaml (.cs)    # Manual Expense Form
+│       │   ├── AddExpensePage.xaml (.cs)    # Expense Form
 │       │   ├── ExpensesPage.xaml (.cs)      # Grouped Expense History
 │       │   ├── ExpenseDetailPage.xaml (.cs) # Digital Receipt View
 │       │   ├── MonthlySummaryPage.xaml (.cs)# Analytics & Donut Chart
 │       │   └── SettingsPage.xaml (.cs)      # Settings & Export View
-│       ├── AppShell.xaml (.cs)              # iOS-styled 4-tab bottom navigation bar
+│       ├── AppShell.xaml (.cs)              # iOS-styled 5-tab bottom navigation bar
 │       ├── MauiProgram.cs                   # Dependency injection container & bootstrapping
 │       └── Vyaya.csproj                     # Multi-targeted .NET 10 project file
 └── tests/
     └── Vyaya.Tests/                         # xUnit Test Suite (.NET 10)
         ├── Services/
-        │   ├── UpiParserTests.cs            # Tests standard, PhonePe, Intent & VPA formats
         │   ├── ExpenseReportServiceTests.cs # Tests inclusion/exclusion rules & math precision
         │   ├── CategorySearchTests.cs       # Tests keyword search & case insensitivity
-        │   ├── ExpenseServiceTests.cs       # Tests pending persistence order & statuses
+        │   ├── ExpenseServiceTests.cs       # Tests expense persistence & updates
         │   └── ExportServiceTests.cs        # Tests CSV escaping & header compliance
         └── Vyaya.Tests.csproj               # xUnit test project referencing Vyaya
 ```
@@ -143,32 +124,25 @@ expense-tracker/
 
 ## ⚡ Key Features
 
-### 1. Mode A: Scan & Pay (UPI QR Code)
-- **Live Camera Scanner**: Hardware-accelerated camera scanning using `ZXing.Net.Maui.Controls` with `TryHarder = true` (reads PhonePe QRs with center logos) and `TryInverted = true` (reads screens & dark modes).
-- **Multi-Format UPI Parsing**: Supports `upi://pay`, `phonepe://pay`, `intent://pay`, BharatQR / EMVCo, and raw VPAs (`merchant@ybl`).
-- **Crash-Proof Pending Persistence**: Crucial architectural guarantee—Vyaya **saves the transaction as `Pending` in SQLite BEFORE launching the UPI app**. If Android terminates the app during payment, your record is never lost.
-- **Android Intent Chooser**: Deep-links to PhonePe, Google Pay, Paytm, BHIM, or Cred without vendor lock-in.
-
-### 2. Mode B: Manual Expense Entry
+### 1. Fast Expense Recording
 - First-class support for Cash, UPI, Credit Card, Debit Card, Bank Transfer, and Other payment methods.
 - Quick amount increment buttons (`+₹100`, `+₹500`, `+₹1000`).
 - Date picker allowing past/historical expense recording.
 - Real-time searchable category picker with keyword matching.
 - Saves directly with `Status = Recorded` and `EntryType = Manual`.
 
-### 3. Spending Analytics & Apple-Style Donut Chart
+### 2. Spending Analytics & Apple-Style Donut Chart
 - Hardware-accelerated 2D Donut Chart drawn using `Microsoft.Maui.Graphics.IDrawable`.
 - Month-over-month navigation (`< August 2026 >`).
-- Section 24 Spending Rules: Aggregates `Paid` and `Recorded` expenses while strictly excluding `Pending`, `Failed`, `Cancelled`, and `Unknown` transactions.
+- Aggregates `Paid` and `Recorded` expenses while strictly excluding `Pending`, `Failed`, `Cancelled`, and `Unknown` transactions.
 - Category progress bars and payment method distribution percentages.
 
-### 4. Date-Grouped History & Digital Receipts
+### 3. Date-Grouped History & Digital Receipts
 - Grouped by Date (e.g. *Today • 23 Aug*, *Yesterday*, *15 Aug 2026*) with calculated daily totals.
 - Instant search bar and filtering chips (by Category, Method, or Status).
 - Apple Wallet style digital receipts with full audit metadata.
-- One-tap status reconciliation for unresolved UPI transactions (*"Mark as Paid"*, *"Mark as Cancelled"*).
 
-### 5. Offline RFC-4180 CSV / Excel Export
+### 4. Offline RFC-4180 CSV / Excel Export
 - Generates compliant CSV / Excel files with headers: `Date,Merchant / Description,Amount,Currency,Category,Payment Method,Entry Type,Note,UPI ID,Payment Reference,Status`.
 - Opens Android native share sheet to save or send via WhatsApp, Drive, Files, or Email.
 

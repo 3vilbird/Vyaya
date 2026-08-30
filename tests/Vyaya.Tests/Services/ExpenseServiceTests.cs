@@ -38,33 +38,31 @@ public class ExpenseServiceTests
     }
 
     [Fact]
-    public async Task CreatePendingUpiExpense_SetsPendingStatusAndUpiScanType()
+    public async Task UpdateExpenseDetails_UpdatesProperties()
     {
-        var request = new UpiPaymentRequest
-        {
-            PaymentAddress = "vendor@upi",
-            PayeeName = "ABC Store",
-            Amount = 450m,
-            Currency = "INR",
-            TransactionNote = "Groceries order"
-        };
+        var expense = await _service.CreateManualExpenseAsync(200m, "Food", PaymentMethod.Cash, "Initial", DateTime.Today);
+        expense.MerchantName = "Corner Cafe";
+        expense.Amount = 250m;
+        expense.Note = "Updated note";
 
-        var expense = await _service.CreatePendingUpiExpenseAsync(
-            request,
-            450m,
-            "Groceries",
-            "My custom note"
-        );
+        var success = await _service.UpdateExpenseDetailsAsync(expense);
 
-        Assert.NotNull(expense);
-        Assert.Equal(450m, expense.Amount);
-        Assert.Equal("ABC Store", expense.MerchantName);
-        Assert.Equal("vendor@upi", expense.UpiId);
-        Assert.Equal("Groceries order", expense.UpiTransactionNote);
-        Assert.Equal("My custom note", expense.Note);
-        Assert.Equal(ExpenseStatus.Pending, expense.Status);
-        Assert.Equal(ExpenseEntryType.UpiScan, expense.EntryType);
+        Assert.True(success);
+        Assert.Equal("Corner Cafe", expense.MerchantName);
+        Assert.Equal(250m, expense.Amount);
+        Assert.Equal("Updated note", expense.Note);
+    }
+
+    [Fact]
+    public async Task DeleteExpense_RemovesFromRepository()
+    {
+        var expense = await _service.CreateManualExpenseAsync(150m, "Travel", PaymentMethod.Upi, "Auto fare", DateTime.Today);
         Assert.Single(_repository.Expenses);
+
+        var success = await _service.DeleteExpenseAsync(expense.Id);
+
+        Assert.True(success);
+        Assert.Empty(_repository.Expenses);
     }
 
     [Fact]

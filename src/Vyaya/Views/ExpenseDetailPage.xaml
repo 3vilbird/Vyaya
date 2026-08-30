@@ -58,13 +58,13 @@
                     BackgroundColor="#15FF9F0A"
                     Padding="16,14">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="UPI PAYMENT STATUS ATTENTION"
+                    <Label Text="EXPENSE STATUS ATTENTION"
                            FontSize="11"
                            CharacterSpacing="1"
                            FontFamily="OpenSansSemibold"
                            TextColor="#FF9F0A"/>
 
-                    <Label Text="Did your PhonePe / UPI payment go through successfully?"
+                    <Label Text="Update the status of this transaction:"
                            FontSize="13"
                            TextColor="{StaticResource TextSecondary}"/>
 
@@ -86,15 +86,6 @@
                                 HeightRequest="44"
                                 Command="{Binding MarkAsCancelledCommand}"/>
                     </Grid>
-
-                    <Button Text="Re-launch UPI App ⚡"
-                            IsVisible="{Binding IsUpiScan}"
-                            BackgroundColor="{StaticResource IosBlue}"
-                            TextColor="{StaticResource White}"
-                            FontSize="13"
-                            CornerRadius="12"
-                            HeightRequest="44"
-                            Command="{Binding RelaunchUpiPaymentCommand}"/>
                 </VerticalStackLayout>
             </Border>
 
