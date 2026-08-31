@@ -107,14 +107,14 @@ public partial class MonthlySummaryViewModel : BaseViewModel
             IsSelected = SelectedChartBasis == "Payment Method"
         });
 
-        BasisOptions.Add(new ChartBasisOptionItem
-        {
-            Id = "Entry Type",
-            Title = "By Entry Mode",
-            Subtitle = "Scan & Pay QR vs Add Manually",
-            Icon = "⚡",
-            IsSelected = SelectedChartBasis == "Entry Type"
-        });
+        // BasisOptions.Add(new ChartBasisOptionItem
+        // {
+        //     Id = "Entry Type",
+        //     Title = "By Entry Mode",
+        //     Subtitle = "Scan & Pay QR vs Add Manually",
+        //     Icon = "⚡",
+        //     IsSelected = SelectedChartBasis == "Entry Type"
+        // });
     }
 
     [RelayCommand]
@@ -238,45 +238,45 @@ public partial class MonthlySummaryViewModel : BaseViewModel
                 });
             }
         }
-        else if (SelectedChartBasis == "Entry Type")
-        {
-            // Entry Type Breakdown (Scan & Pay vs Manual)
-            var validExpenses = _currentExpenses
-                .Where(e => e.Status == ExpenseStatus.Paid || e.Status == ExpenseStatus.Recorded)
-                .ToList();
+        // else if (SelectedChartBasis == "Entry Type")
+        // {
+        //     // Entry Type Breakdown (Scan & Pay vs Manual)
+        //     var validExpenses = _currentExpenses
+        //         .Where(e => e.Status == ExpenseStatus.Paid || e.Status == ExpenseStatus.Recorded)
+        //         .ToList();
 
-            var upiScanAmount = validExpenses.Where(e => e.EntryType == ExpenseEntryType.UpiScan).Sum(e => e.Amount);
-            var manualAmount = validExpenses.Where(e => e.EntryType == ExpenseEntryType.Manual).Sum(e => e.Amount);
-            var total = upiScanAmount + manualAmount;
+        //     var upiScanAmount = validExpenses.Where(e => e.EntryType == ExpenseEntryType.UpiScan).Sum(e => e.Amount);
+        //     var manualAmount = validExpenses.Where(e => e.EntryType == ExpenseEntryType.Manual).Sum(e => e.Amount);
+        //     var total = upiScanAmount + manualAmount;
 
-            if (upiScanAmount > 0)
-            {
-                var pct = total > 0 ? (double)(upiScanAmount / total * 100) : 0;
-                segments.Add(new ChartSegment
-                {
-                    Name = "Scan & Pay",
-                    TotalAmount = upiScanAmount,
-                    Percentage = pct,
-                    Count = validExpenses.Count(e => e.EntryType == ExpenseEntryType.UpiScan),
-                    Icon = "📷",
-                    ColorHex = "#0A84FF"
-                });
-            }
+        //     if (upiScanAmount > 0)
+        //     {
+        //         var pct = total > 0 ? (double)(upiScanAmount / total * 100) : 0;
+        //         segments.Add(new ChartSegment
+        //         {
+        //             Name = "Scan & Pay",
+        //             TotalAmount = upiScanAmount,
+        //             Percentage = pct,
+        //             Count = validExpenses.Count(e => e.EntryType == ExpenseEntryType.UpiScan),
+        //             Icon = "📷",
+        //             ColorHex = "#0A84FF"
+        //         });
+        //     }
 
-            if (manualAmount > 0)
-            {
-                var pct = total > 0 ? (double)(manualAmount / total * 100) : 0;
-                segments.Add(new ChartSegment
-                {
-                    Name = "Add Manually",
-                    TotalAmount = manualAmount,
-                    Percentage = pct,
-                    Count = validExpenses.Count(e => e.EntryType == ExpenseEntryType.Manual),
-                    Icon = "✍️",
-                    ColorHex = "#34C759"
-                });
-            }
-        }
+        //     if (manualAmount > 0)
+        //     {
+        //         var pct = total > 0 ? (double)(manualAmount / total * 100) : 0;
+        //         segments.Add(new ChartSegment
+        //         {
+        //             Name = "Add Manually",
+        //             TotalAmount = manualAmount,
+        //             Percentage = pct,
+        //             Count = validExpenses.Count(e => e.EntryType == ExpenseEntryType.Manual),
+        //             Icon = "✍️",
+        //             ColorHex = "#34C759"
+        //         });
+        //     }
+        // }
 
         CurrentChartSegments.Clear();
         foreach (var seg in segments)
