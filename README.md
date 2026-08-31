@@ -1,3 +1,5 @@
+
+## Read the requirement.md for the next feature 
 # Vyaya (व्यय) — Local-First Expense Tracker
 
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
