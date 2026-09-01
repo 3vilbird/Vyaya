@@ -270,22 +270,41 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Expense Date Card -->
+            <!-- Expense Date & Time Card -->
             <Border Stroke="{StaticResource CardBorder}"
                     StrokeShape="RoundRectangle 18"
                     BackgroundColor="{StaticResource CardBackground}"
                     Padding="16,14">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="EXPENSE DATE"
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="EXPENSE DATE &amp; TIME"
                            FontSize="11"
                            CharacterSpacing="1"
                            FontFamily="OpenSansSemibold"
                            TextColor="{StaticResource TextSecondary}"/>
 
-                    <DatePicker Date="{Binding ExpenseDate}"
-                                FontSize="15"
-                                FontFamily="OpenSansSemibold"
-                                TextColor="{StaticResource TextPrimary}"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Stroke="{StaticResource CardBorder}"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                Padding="12,4">
+                            <DatePicker Date="{Binding ExpenseDate}"
+                                        FontSize="14"
+                                        FontFamily="OpenSansSemibold"
+                                        TextColor="{StaticResource TextPrimary}"/>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                Stroke="{StaticResource CardBorder}"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="{StaticResource CardBackgroundElevated}"
+                                Padding="12,4">
+                            <TimePicker Time="{Binding ExpenseTime}"
+                                        Format="hh:mm tt"
+                                        FontSize="14"
+                                        FontFamily="OpenSansSemibold"
+                                        TextColor="{StaticResource TextPrimary}"/>
+                        </Border>
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 

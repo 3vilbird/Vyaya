@@ -55,6 +55,15 @@ public class Expense
     public DateTime EffectiveDateLocal => (ExpenseDateUtc ?? CreatedAtUtc).ToLocalTime();
 
     [Ignore]
+    public string FormattedDateTime => EffectiveDateLocal.ToString("dd MMM yyyy, hh:mm tt", CultureInfo.InvariantCulture);
+
+    [Ignore]
+    public string FormattedDate => EffectiveDateLocal.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
+
+    [Ignore]
+    public string FormattedTime => EffectiveDateLocal.ToString("hh:mm tt", CultureInfo.InvariantCulture);
+
+    [Ignore]
     public string FormattedAmount
     {
         get
@@ -90,6 +99,7 @@ public class Expense
             if (!string.IsNullOrWhiteSpace(Category))
                 parts.Add(Category);
             parts.Add(PaymentMethod.ToString());
+            parts.Add(FormattedTime);
             if (!string.IsNullOrWhiteSpace(Note) && DisplayTitle != Note)
                 parts.Add(Note);
             return string.Join(" • ", parts);

@@ -25,6 +25,9 @@ public partial class AddExpenseViewModel : BaseViewModel
     private DateTime _expenseDate = DateTime.Today;
 
     [ObservableProperty]
+    private TimeSpan _expenseTime = DateTime.Now.TimeOfDay;
+
+    [ObservableProperty]
     private Category? _selectedCategory;
 
     [ObservableProperty]
@@ -51,6 +54,9 @@ public partial class AddExpenseViewModel : BaseViewModel
     [RelayCommand]
     public async Task InitializeAsync()
     {
+        ExpenseDate = DateTime.Today;
+        ExpenseTime = DateTime.Now.TimeOfDay;
+
         var all = await _categoryService.GetCategoriesAsync();
         Categories.Clear();
         FilteredCategories.Clear();
@@ -181,12 +187,14 @@ public partial class AddExpenseViewModel : BaseViewModel
             var categoryName = SelectedCategory?.Name ?? "Other";
             var note = !string.IsNullOrWhiteSpace(UserNote) ? UserNote.Trim() : null;
 
+            var localDateTime = DateTime.SpecifyKind(ExpenseDate.Date + ExpenseTime, DateTimeKind.Local);
+
             var expense = await _expenseService.CreateManualExpenseAsync(
                 amount,
                 categoryName,
                 SelectedPaymentMethod,
                 note,
-                ExpenseDate
+                localDateTime
             );
 
             if (!string.IsNullOrWhiteSpace(TitleOrMerchant))
@@ -199,6 +207,8 @@ public partial class AddExpenseViewModel : BaseViewModel
             AmountText = string.Empty;
             TitleOrMerchant = string.Empty;
             UserNote = string.Empty;
+            ExpenseDate = DateTime.Today;
+            ExpenseTime = DateTime.Now.TimeOfDay;
 
             await Shell.Current.GoToAsync("..");
         }

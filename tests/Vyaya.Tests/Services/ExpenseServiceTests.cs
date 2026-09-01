@@ -76,4 +76,29 @@ public class ExpenseServiceTests
         Assert.Equal("TXN12345", expense.PaymentReference);
         Assert.NotNull(expense.CompletedAtUtc);
     }
+
+    [Fact]
+    public async Task CreateManualExpense_PreservesSpecificTime_EffectiveDateLocalMatches()
+    {
+        // 9:30 PM (21:30) on Sept 1, 2026
+        var localDateTime = new DateTime(2026, 9, 1, 21, 30, 0, DateTimeKind.Local);
+
+        var expense = await _service.CreateManualExpenseAsync(
+            500m,
+            "Food",
+            PaymentMethod.Cash,
+            "Dinner",
+            localDateTime
+        );
+
+        Assert.Equal(21, expense.EffectiveDateLocal.Hour);
+        Assert.Equal(30, expense.EffectiveDateLocal.Minute);
+        Assert.Equal(1, expense.EffectiveDateLocal.Day);
+        Assert.Equal(9, expense.EffectiveDateLocal.Month);
+        Assert.Equal(2026, expense.EffectiveDateLocal.Year);
+
+        Assert.Equal("09:30 PM", expense.FormattedTime);
+        Assert.Contains("09:30 PM", expense.DisplaySubtitle);
+        Assert.Contains("01 Sep 2026, 09:30 PM", expense.FormattedDateTime);
+    }
 }

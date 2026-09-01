@@ -13,12 +13,10 @@ public class MockExpenseRepository : IExpenseRepository
     public Task<List<Expense>> GetAllAsync() => Task.FromResult(Expenses.ToList());
     public Task<List<Expense>> GetByMonthAsync(int year, int month)
     {
-        var start = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var end = start.AddMonths(1).AddTicks(-1);
         return Task.FromResult(Expenses.Where(e =>
         {
-            var d = (e.ExpenseDateUtc ?? e.CreatedAtUtc).ToUniversalTime();
-            return d >= start && d <= end;
+            var localDate = e.EffectiveDateLocal;
+            return localDate.Year == year && localDate.Month == month;
         }).ToList());
     }
     public Task<List<Expense>> GetByDateRangeAsync(DateTime startUtc, DateTime endUtc) =>
@@ -133,6 +131,31 @@ public class ExpenseReportServiceTests
 
         Assert.Equal(450m, julySummary.TotalAmount);
         Assert.Equal(1, julySummary.TransactionCount);
+
+        Assert.Equal(0m, augSummary.TotalAmount);
+        Assert.Equal(0, augSummary.TransactionCount);
+    }
+
+    [Fact]
+    public async Task GetMonthlySummary_LocalTimezoneSeptemberFirst_IncludedInSeptemberNotAugust()
+    {
+        // An expense recorded on September 1st in local time (e.g., IST)
+        var sepFirstLocal = new DateTime(2026, 9, 1, 21, 30, 0, DateTimeKind.Local);
+
+        _expenseRepo.Expenses.Add(new Expense
+        {
+            Amount = 750m,
+            Category = "Food",
+            Status = ExpenseStatus.Recorded,
+            ExpenseDateUtc = sepFirstLocal.ToUniversalTime(),
+            PaymentMethod = PaymentMethod.Cash
+        });
+
+        var sepSummary = await _reportService.GetMonthlySummaryAsync(2026, 9);
+        var augSummary = await _reportService.GetMonthlySummaryAsync(2026, 8);
+
+        Assert.Equal(750m, sepSummary.TotalAmount);
+        Assert.Equal(1, sepSummary.TransactionCount);
 
         Assert.Equal(0m, augSummary.TotalAmount);
         Assert.Equal(0, augSummary.TransactionCount);

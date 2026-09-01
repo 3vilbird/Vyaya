@@ -103,7 +103,7 @@ public partial class ExpensesViewModel : BaseViewModel
             var yesterday = today.AddDays(-1);
 
             var groups = expenses
-                .GroupBy(e => (e.ExpenseDateUtc ?? e.CreatedAtUtc).ToLocalTime().Date)
+                .GroupBy(e => e.EffectiveDateLocal.Date)
                 .OrderByDescending(g => g.Key);
 
             foreach (var g in groups)
@@ -123,7 +123,7 @@ public partial class ExpensesViewModel : BaseViewModel
                                 .Sum(e => e.Amount);
                 var totalFormatted = dayTotal > 0 ? $"₹{dayTotal.ToString("N0", culture)}" : string.Empty;
 
-                GroupedExpenses.Add(new ExpenseDateGroup(header, totalFormatted, g.OrderByDescending(e => e.ExpenseDateUtc ?? e.CreatedAtUtc)));
+                GroupedExpenses.Add(new ExpenseDateGroup(header, totalFormatted, g.OrderByDescending(e => e.EffectiveDateLocal)));
             }
         }
         catch (Exception ex)
