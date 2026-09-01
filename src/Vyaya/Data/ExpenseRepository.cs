@@ -29,15 +29,12 @@ public class ExpenseRepository : IExpenseRepository
     public async Task<List<Expense>> GetByMonthAsync(int year, int month)
     {
         await _database.InitializeAsync();
-        var startOfMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var endOfMonth = startOfMonth.AddMonths(1).AddTicks(-1);
-
         var all = await _database.Connection.Table<Expense>().ToListAsync();
         return all
             .Where(e =>
             {
-                var date = (e.ExpenseDateUtc ?? e.CreatedAtUtc).ToUniversalTime();
-                return date >= startOfMonth && date <= endOfMonth;
+                var localDate = e.EffectiveDateLocal;
+                return localDate.Year == year && localDate.Month == month;
             })
             .OrderByDescending(e => e.ExpenseDateUtc ?? e.CreatedAtUtc)
             .ToList();
@@ -60,11 +57,11 @@ public class ExpenseRepository : IExpenseRepository
     public async Task<List<Expense>> GetRecentAsync(int limit = 10)
     {
         await _database.InitializeAsync();
-        var all = await _database.Connection.Table<Expense>()
+        var all = await _database.Connection.Table<Expense>().ToListAsync();
+        return all
             .OrderByDescending(e => e.ExpenseDateUtc ?? e.CreatedAtUtc)
             .Take(limit)
-            .ToListAsync();
-        return all;
+            .ToList();
     }
 
     public async Task<List<Expense>> GetPendingOrUnknownAsync()

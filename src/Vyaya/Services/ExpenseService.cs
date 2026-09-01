@@ -14,6 +14,20 @@ public class ExpenseService : IExpenseService
 
     public async Task<Expense> CreateManualExpenseAsync(decimal amount, string category, PaymentMethod method, string? note, DateTime expenseDate)
     {
+        DateTime utcDate;
+        if (expenseDate.Kind == DateTimeKind.Utc)
+        {
+            utcDate = expenseDate;
+        }
+        else if (expenseDate.Kind == DateTimeKind.Local)
+        {
+            utcDate = expenseDate.ToUniversalTime();
+        }
+        else
+        {
+            utcDate = DateTime.SpecifyKind(expenseDate, DateTimeKind.Local).ToUniversalTime();
+        }
+
         var expense = new Expense
         {
             Id = Guid.NewGuid(),
@@ -24,7 +38,7 @@ public class ExpenseService : IExpenseService
             EntryType = ExpenseEntryType.Manual,
             Status = ExpenseStatus.Recorded,
             CreatedAtUtc = DateTime.UtcNow,
-            ExpenseDateUtc = expenseDate.ToUniversalTime(),
+            ExpenseDateUtc = utcDate,
             CompletedAtUtc = DateTime.UtcNow,
             Currency = "INR"
         };
